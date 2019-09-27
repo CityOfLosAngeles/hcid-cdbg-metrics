@@ -12,7 +12,7 @@ Sys.getenv("CENSUS_KEY")
 setwd("GitHub/hcid-cdbg-metrics")
 
 ## Load years
-tract_years <- list(2010, 2012, 2013, 2014, 2015, 2016, 2017)
+tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
 zipcode_years1 <- list(1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 
                       2006, 2007, 2008, 2009, 2010, 2011)
 zipcode_years2 <- list(2012, 2013, 2014, 2015, 2016)
@@ -125,7 +125,7 @@ write_csv(emp, "data/Census/employment_tract.csv")
 
 
 #------------------------------------------------------------------#
-## Median Income by Tract -- need 2011
+## Median Income by Tract -- got all years
 #------------------------------------------------------------------#
 income_list = list()
 
@@ -160,7 +160,7 @@ write_csv(income, "data/Census/income_tract.csv")
 
 
 #------------------------------------------------------------------#
-## Educational Attainment by Tract -- need 2011
+## Educational Attainment by Tract -- got all years
 #------------------------------------------------------------------#
 edu_list = list()
 
@@ -206,11 +206,11 @@ write_csv(edu, "data/Census/educational_attainment_tract.csv")
 
 
 #------------------------------------------------------------------#
-## Poverty Status by Tract -- need 2011
+## Poverty Status by Tract -- does not have 2010-2011
 #------------------------------------------------------------------#
 pov_list = list()
 
-for (y in 2012:2017) {
+for (y in 2011) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S1701"))
   
@@ -248,7 +248,7 @@ write_csv(pov, "data/Census/poverty_tract.csv")
 
 
 #------------------------------------------------------------------#
-## Poverty Status of Families by Tract -- need 2011
+## Poverty Status of Families by Tract -- got all years
 #------------------------------------------------------------------#
 pov_list2 = list()
 
@@ -276,7 +276,7 @@ write_csv(pov2, "data/Census/poverty_families_tract.csv")
 
 
 #------------------------------------------------------------------#
-## Households receiving Food Stamps by Tract -- need 2011
+## Households receiving Food Stamps by Tract -- got all years
 #------------------------------------------------------------------#
 food_list = list()
 
