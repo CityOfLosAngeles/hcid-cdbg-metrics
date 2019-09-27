@@ -77,7 +77,7 @@ write_csv(la, "data/Census/population_block_group.csv")
 
 
 #------------------------------------------------------------------#
-## Employment status -- need 2011
+## Employment status -- got all  years
 # labor force participation rate, employment/population ratio, unemployment rate
 #------------------------------------------------------------------#
 emp_list = list()

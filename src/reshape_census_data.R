@@ -3,19 +3,26 @@
 # Output:
 
 library(tidyverse)
+library(tidyr)
 
 setwd("GitHub/hcid-cdbg-metrics")
 
-df <- read_csv("data/Census/population_tract.csv")
+df <- read_csv("data/Census/employment_tract.csv")
 
 # Practice on 1 tract...set up the workflow
-df <- df[which(df$tract==143700),]
+df <- df[which(df$GEOID=='06037143700' & df$year == 2016) ,]
+
+spread(df, variable, c(estimate, moe))
+
+
+
+
+
 
 # Concatenate and create GEOID
-df <- within(df, GEOID <-paste(state, county, tract, sep = ""))
+#df <- within(df, GEOID <-paste(state, county, tract, sep = ""))
 
 # Substring column names
-df %>% select(matches('B01003')) %>% substr(names(df), start = 8, stop = 11)
 
 
 # Drop columns not needed (all margin of error cols)
