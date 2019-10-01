@@ -8,3 +8,7 @@ pip: requirements.txt
 	pip install -e .
 
 install: conda pip
+
+mirror:
+	intake-dcat mirror manifest.yml > catalogs/open-data.yml
+

@@ -17,3 +17,8 @@ sources:
     driver: dcat
     args:
       url: http://gisdata-scag.opendata.arcgis.com/data.json
+  pop:
+    driver: csv
+    description: City of LA census tracts (2010) with 2017 ACS population attached.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/data/raw/.csv

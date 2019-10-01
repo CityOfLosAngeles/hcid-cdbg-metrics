@@ -1,0 +1,17 @@
+metadata:
+  version: 1
+  bucket_uri: s3://hcid-cdbg-project-ita-data
+sources:
+  la-open-data:
+    driver: dcat
+    args:
+      url: https://data.lacity.org/data.json
+      items: {}
+  la-geohub:
+    driver: dcat
+    args:
+      url: http://geohub.lacity.org/data.json
+      items:
+        city_boundary: http://geohub.lacity.org/datasets/09f503229d37414a8e67a7b6ceb9ec43_7
+        neighborhood_council_boundaries: http://geohub.lacity.org/datasets/674f80b8edee4bf48551512896a1821d_0
+        city_council_districts: http://geohub.lacity.org/datasets/76104f230e384f38871eb3c4782f903d_13
