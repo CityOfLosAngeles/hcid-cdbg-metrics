@@ -162,6 +162,8 @@ write_csv(income, "data/Census/income_tract.csv")
 #------------------------------------------------------------------#
 ## Educational Attainment by Tract -- got all years
 #------------------------------------------------------------------#
+# To grab median earnings by edu attainment, need to specify specific vars for the years
+# Variables are not consistent from 2010-2017 after _015. Drop the later variables for now.
 edu_list = list()
 
 for (y in tract_years) {
@@ -180,17 +182,7 @@ for (y in tract_years) {
                          str_detect(variable, "012$") |
                          str_detect(variable, "013$") |
                          str_detect(variable, "014$") |
-                         str_detect(variable, "015$") |
-                         str_detect(variable, "028$") |
-                         str_detect(variable, "029$") |
-                         str_detect(variable, "030$") |
-                         str_detect(variable, "031$") |
-                         str_detect(variable, "032$") |
-                         str_detect(variable, "033$") |
-                         str_detect(variable, "034$") |
-                         str_detect(variable, "035$") |
-                         str_detect(variable, "036$") |
-                         str_detect(variable, "037$")) &
+                         str_detect(variable, "015$")) & 
                         str_detect(GEOID, "^06037") &
                         str_detect(variable, "_C01_")
   )
@@ -208,6 +200,7 @@ write_csv(edu, "data/Census/educational_attainment_tract.csv")
 #------------------------------------------------------------------#
 ## Poverty Status by Tract -- does not have 2010-2011
 #------------------------------------------------------------------#
+## S1701 table doesn't have the same variables from 2012-2017. Don't clean for now.
 pov_list = list()
 
 for (y in 2011) {
@@ -250,6 +243,7 @@ write_csv(pov, "data/Census/poverty_tract.csv")
 #------------------------------------------------------------------#
 ## Poverty Status of Families by Tract -- got all years
 #------------------------------------------------------------------#
+# Variables are not consistent from 2010-2017
 pov_list2 = list()
 
 for (y in tract_years) {
@@ -278,6 +272,7 @@ write_csv(pov2, "data/Census/poverty_families_tract.csv")
 #------------------------------------------------------------------#
 ## Households receiving Food Stamps by Tract -- got all years
 #------------------------------------------------------------------#
+# Variables aren't consistent from 2012-2017. Need to figure out which vars to keep.
 food_list = list()
 
 for (y in tract_years) {
