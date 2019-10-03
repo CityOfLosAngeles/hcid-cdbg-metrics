@@ -47,7 +47,7 @@ for key, df in censusapi.items():
 emp = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/employment_tract.csv')
 income = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_tract.csv')
 edu = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/educational_attainment_tract.csv') 
-pov = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_tract.csv') 
+#pov = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_tract.csv') 
 pov_fam = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_families_tract.csv') 
 food = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/food_stamps_tract.csv') 
 
@@ -61,7 +61,7 @@ food = pd.read_csv('../data/Census/food_stamps_tract.csv')
 """
 
 # Save all the dfs into a dictionary
-tidycensus = {'emp': emp, 'income': income, 'edu': edu, 'pov': pov, 
+tidycensus = {'emp': emp, 'income': income, 'edu': edu, 
               'pov_fam': pov_fam, 'food': food}
 
 for key, df in tidycensus.items():
