@@ -76,9 +76,9 @@ sources:
         theme:
         - geospatial
         title: City Boundary
-  city_council_districts:
+  council_districts:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/city_council_districts.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/council_districts.geojson
     description: "## LA City Council Districts (Adopted 2012)\n\nCouncil Districts\_"
     driver: intake_geopandas.geopandas.GeoJSONSource
     metadata:
@@ -152,9 +152,9 @@ sources:
         theme:
         - geospatial
         title: LA City Council Districts (Adopted 2012)
-  la_times_neighborhoods:
+  latimes_neighborhoods:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/la_times_neighborhoods.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/latimes_neighborhoods.geojson
     description: "## LA Times Neighborhood Boundaries\n\n<div><div><b>Description:\_\
       </b>The neighborhoods shown in this dataset are derived from a larger dataset\
       \ drawn and maintained by the Data Desk, a team of Times reporters and Web developers\
@@ -237,9 +237,9 @@ sources:
         theme:
         - geospatial
         title: LA Times Neighborhood Boundaries
-  neighborhood_council_boundaries:
+  neighborhood_councils:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/neighborhood_council_boundaries.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/neighborhood_councils.geojson
     description: '## Neighborhood Council Boundaries (2018)
 
 
