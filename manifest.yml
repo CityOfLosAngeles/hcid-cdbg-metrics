@@ -1,6 +1,6 @@
 metadata:
   version: 1
-  bucket_uri: s3://hcid-cdbg-project-ita-data
+  bucket_uri: s3://hcid-cdbg-project-ita-data/gis/source
 sources:
   la-open-data:
     driver: dcat

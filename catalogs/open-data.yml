@@ -4,7 +4,7 @@ metadata:
 sources:
   city_boundary:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/city_boundary.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/city_boundary.geojson
     description: "## City Boundary\n\nCity Boundary\_"
     driver: intake_geopandas.geopandas.GeoJSONSource
     metadata:
@@ -78,7 +78,7 @@ sources:
         title: City Boundary
   council_districts:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/council_districts.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/council_districts.geojson
     description: "## LA City Council Districts (Adopted 2012)\n\nCouncil Districts\_"
     driver: intake_geopandas.geopandas.GeoJSONSource
     metadata:
@@ -154,7 +154,7 @@ sources:
         title: LA City Council Districts (Adopted 2012)
   latimes_neighborhoods:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/latimes_neighborhoods.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/latimes_neighborhoods.geojson
     description: "## LA Times Neighborhood Boundaries\n\n<div><div><b>Description:\_\
       </b>The neighborhoods shown in this dataset are derived from a larger dataset\
       \ drawn and maintained by the Data Desk, a team of Times reporters and Web developers\
@@ -239,7 +239,7 @@ sources:
         title: LA Times Neighborhood Boundaries
   neighborhood_councils:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/neighborhood_councils.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/neighborhood_councils.geojson
     description: '## Neighborhood Council Boundaries (2018)
 
 
@@ -322,7 +322,7 @@ sources:
         title: Neighborhood Council Boundaries (2018)
   zip_codes:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/zip_codes.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/zip_codes.geojson
     description: '## Zip Codes (LA County)
 
 

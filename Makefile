@@ -12,3 +12,6 @@ install: conda pip
 mirror:
 	intake-dcat mirror manifest.yml > catalogs/open-data.yml
 
+#census_data:
+	#r src/A1_download_census_data.R
+	#python src/A2_compile_census.py
