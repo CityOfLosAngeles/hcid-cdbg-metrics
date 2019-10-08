@@ -75,4 +75,4 @@ for key, df in tidycensus.items():
 
 # Append dfs together and export as parquet
 all = long.append(long2)
-all.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_data.parquet')
+all.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census.parquet')
