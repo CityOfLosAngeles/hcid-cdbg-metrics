@@ -11,12 +11,12 @@ import utils
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
-tracts = gpd.read_file('./gis/raw/tracts_clipped.geojson')
-zipcodes = gpd.read_file('./gis/raw/zipcodes_clipped.geojson')
-neighborhoods = gpd.read_file('./gis/raw/neighborhoods.geojson')
-neighborhood_councils = gpd.read_file('./gis/raw/neighborhood_councils.geojson')
-council_districts = gpd.read_file('./gis/raw/council_districts.geojson')
-congressional_districts = gpd.read_file('./gis/raw/congressional_districts_clipped.geojson')
+tracts = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/tracts_clipped.geojson')
+zipcodes = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/zipcodes_clipped.geojson')
+neighborhoods = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/neighborhoods.geojson')
+neighborhood_councils = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/neighborhood_councils.geojson')
+council_districts = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/council_districts.geojson')
+congressional_districts = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/raw/congressional_districts_clipped.geojson')
 
 
 # Subset and rename columns

@@ -120,7 +120,6 @@ for (y in 2010:2014) {
 }
 
 emp = do.call(rbind, emp_list)
-#write_csv(emp, "data/Census/employment_tract_2010_2014.csv")
 
 
 # 2015-2017
@@ -162,7 +161,6 @@ for (y in 2015:2017) {
 }
 
 emp2 = do.call(rbind, emp_list2)
-#write_csv(emp2, "data/Census/employment_tract_2015_2017.csv")
 
 
 # Append dfs and export
@@ -253,7 +251,6 @@ for (y in 2010:2014) {
 }
 
 edu = do.call(rbind, edu_list)
-#write_csv(edu, "data/Census/educational_attainment_tract_2010_2014.csv")
 
 
 # 2015-2017
@@ -295,7 +292,6 @@ for (y in 2015:2017) {
 }
 
 edu2 = do.call(rbind, edu_list2)
-#write_csv(edu2, "data/Census/educational_attainment_tract_2015_2017.csv")
 
 
 # Append dfs and export
@@ -342,8 +338,6 @@ for (y in 2011) {
 }
 
 pov = do.call(rbind, pov_list)
-
-table(pov$year)
 
 write_csv(pov, "data/Census/poverty_tract.csv")
 
@@ -402,7 +396,6 @@ for (y in 2010:2014) {
 }
 
 food = do.call(rbind, food_list)
-#write_csv(food, "data/Census/food_stamps_tract_2010_2014.csv")
 
 
 # 2015-2017
@@ -428,7 +421,6 @@ for (y in 2015:2017) {
 }
 
 food2 = do.call(rbind, food_list2)
-#write_csv(food2, "data/Census/food_stamps_tract_2015_2017.csv")
 
 
 # Append dfs and export
@@ -455,8 +447,6 @@ for (y in 2010:2017) {
 
 public_assistance = do.call(rbind, public_assistance_list)
 
-table(public_assistance$year)
-
 write_csv(public_assistance, "src/data/Census/public_assistance_tract.csv")
 
 
@@ -477,8 +467,6 @@ for (y in 2010:2017) {
 }
 
 agg_public_assistance = do.call(rbind, agg_public_assistance_list)
-
-table(agg_public_assistance$year)
 
 write_csv(agg_public_assistance, "data/Census/aggregate_public_assistance_tract.csv")
 

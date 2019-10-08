@@ -22,8 +22,8 @@ neighborhood_councils = catalog.neighborhood_councils.read()
 zipcodes = catalog.zip_codes.read()
 
 # Census TIGER shapefiles
-tracts = gpd.read_file('./gis/source/tl_2019_06_tract/')
-congressional_districts = gpd.read_file('./gis/source/tl_2019_us_cd116/')
+tracts = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/source/tl_2019_06_tract/')
+congressional_districts = gpd.read_file('s3://hcid-cdbg-project-ita-data/gis/source/tl_2019_us_cd116/')
 
 
 # Clean up columns
@@ -58,16 +58,16 @@ for key, value in boundaries.items():
     # Project to CA State Plane
     value = value.to_crs({'init':'epsg:2229'})
     # Spatial join and only keep if it intersects with city_boundary
-    sjoin = gpd.sjoin(value, city_boundary, how = 'inner', op = 'intersects')
-    sjoin.drop(columns = ['index_right', 'CITY'], inplace = True)
+    joined = gpd.sjoin(value, city_boundary, how = 'inner', op = 'intersects')
+    joined.drop(columns = ['index_right', 'CITY'], inplace = True)
     # Add area column
-    sjoin['full_area'] = sjoin.geometry.area / sqft_to_sqmi
+    joined['full_area'] = joined.geometry.area / utils.sqft_to_sqmi
     # Clip by city boundary and create new clipped geometry column
-    sjoin['clipped_geom'] = sjoin[sjoin.intersects(boundary)].intersection(boundary)  
+    joined['clipped_geom'] = joined[joined.intersects(boundary)].intersection(boundary)  
     # Add clipped_geom area column
-    sjoin['clipped_area'] = sjoin.set_geometry('clipped_geom').area / utils.sqft_to_sqmi
+    joined['clipped_area'] = joined.set_geometry('clipped_geom').area / utils.sqft_to_sqmi
     # Save result in new dictionary
-    gdfs[key] = sjoin
+    gdfs[key] = joined
 
 
 # Save gdfs locally and to S3
