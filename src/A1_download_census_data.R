@@ -246,6 +246,9 @@ write_csv(income3, "data/Census/income_tract.csv")
 #------------------------------------------------------------------#
 # To grab median earnings by edu attainment, need to specify specific vars for the years
 # Variables changed in 2015. Grab the same set for 2010-2014 and 2015-2017.
+# 2010-2014: 014-015 uses C01 to show percent HS or above, percent BA or above
+# 2015-2017: 014-015 uses C02 to show percent HS or above, percent BA or above, and C01 is nan
+
 # 2010-2014
 edu_list = list()
 
@@ -275,7 +278,8 @@ for (y in 2010:2014) {
                          str_detect(variable, "034$") |
                          str_detect(variable, "035$") |
                          str_detect(variable, "036$") |
-                         str_detect(variable, "037$")) & 
+                         str_detect(variable, "037$")) &
+                        str_detect(variable, "_C01") &
                         str_detect(GEOID, "^06037")
   )
   
@@ -297,7 +301,9 @@ for (y in 2015:2017) {
   ca <- get_acs(geography = "tract", year = y, variables = columns$name,
                 state = "CA", survey = "acs5", geometry = FALSE)
   
-  la <- ca %>% filter((str_detect(variable, "006$") |
+  la <- ca %>% filter(str_detect(GEOID, "^06037") &
+                        (
+                          ((str_detect(variable, "006$") |
                          str_detect(variable, "007$") |
                          str_detect(variable, "008$") |
                          str_detect(variable, "009$") |
@@ -305,8 +311,6 @@ for (y in 2015:2017) {
                          str_detect(variable, "011$") |
                          str_detect(variable, "012$") |
                          str_detect(variable, "013$") |
-                         str_detect(variable, "014$") |
-                         str_detect(variable, "015$") |
                          str_detect(variable, "055$") |
                          str_detect(variable, "056$") |
                          str_detect(variable, "057$") |
@@ -316,8 +320,13 @@ for (y in 2015:2017) {
                          str_detect(variable, "061$") |
                          str_detect(variable, "062$") |
                          str_detect(variable, "063$") |
-                         str_detect(variable, "064$")) & 
-                        str_detect(GEOID, "^06037")
+                         str_detect(variable, "064$")) &
+                        str_detect(variable, "_C01")) |
+                        (
+                          (str_detect(variable, "014$") | 
+                          str_detect(variable, "015$")) & 
+                          str_detect(variable, "_C02"))
+                        )
   )
   
   la$year <- y
@@ -326,6 +335,14 @@ for (y in 2015:2017) {
 }
 
 edu2 = do.call(rbind, edu_list2)
+write_csv(edu2, "data/Census/educational_attainment_tract_2015_2017.csv")
+
+edu <- read_csv("data/Census/educational_attainment_tract.csv")
+
+drop_me <- names(edu) %in% c("X1")
+edu <- edu[!drop_me]
+
+edu <- edu[which(edu$year <= 2014),]
 
 
 # Append dfs and export
