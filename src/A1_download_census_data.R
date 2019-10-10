@@ -311,10 +311,6 @@ for (y in 2015:2017) {
                          str_detect(variable, "011$") |
                          str_detect(variable, "012$") |
                          str_detect(variable, "013$") |
-                         str_detect(variable, "055$") |
-                         str_detect(variable, "056$") |
-                         str_detect(variable, "057$") |
-                         str_detect(variable, "058$") |
                          str_detect(variable, "059$") |
                          str_detect(variable, "060$") |
                          str_detect(variable, "061$") |
@@ -324,7 +320,11 @@ for (y in 2015:2017) {
                         str_detect(variable, "_C01")) |
                         (
                           (str_detect(variable, "014$") | 
-                          str_detect(variable, "015$")) & 
+                          str_detect(variable, "015$") | 
+                          str_detect(variable, "055$") |
+                          str_detect(variable, "056$") |
+                          str_detect(variable, "057$") |
+                          str_detect(variable, "058$")) & 
                           str_detect(variable, "_C02"))
                         )
   )
@@ -335,14 +335,6 @@ for (y in 2015:2017) {
 }
 
 edu2 = do.call(rbind, edu_list2)
-write_csv(edu2, "data/Census/educational_attainment_tract_2015_2017.csv")
-
-edu <- read_csv("data/Census/educational_attainment_tract.csv")
-
-drop_me <- names(edu) %in% c("X1")
-edu <- edu[!drop_me]
-
-edu <- edu[which(edu$year <= 2014),]
 
 
 # Append dfs and export

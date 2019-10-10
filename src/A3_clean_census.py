@@ -65,8 +65,11 @@ def income_vars(row):
     elif row.variable.find('_C03') != -1:
         return 'medincome'
 
+# There are 2 variables that appear as C02 from 2015-2017, but appeared as C01 from 2010-2014. Clean later, use the same main_var for now.
 def edu_vars(row):
     if row.variable.find('_C01') != -1:
+        return 'pop'
+    elif row.variable.find('_C02') != -1:
         return 'pop'
 
 def povfam_vars(row):
@@ -151,9 +154,9 @@ edu2015 = {'06': 'total_pop25', '07': 'hs9', '08': 'hs12', '09': 'hs', '10': 'co
            '60': 'lhs_medearning', '61': 'hs_medearning', '62': 'college_medearning', '63': 'ba_medearning', '64': 'ma_medearning'}
 
 
-food2010 = {'01': 'hh', '04': 'hh_pov', '16': 'medhhincome'}
+food2010 = {'01': 'total', '04': 'pov', '16': 'medhhincome'}
 
-food2015 = {'01': 'hh', '21': 'hh_pov', '34': 'medhhincome'}
+food2015 = {'01': 'total', '21': 'pov', '34': 'medhhincome'}
 
 
 def pick_secondary_var(row):
