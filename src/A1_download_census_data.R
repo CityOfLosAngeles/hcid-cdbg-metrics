@@ -80,9 +80,11 @@ write_csv(la, "data/Census/population_block_group.csv")
 ## Employment status -- got all  years
 # labor force participation rate, employment/population ratio, unemployment rate
 #------------------------------------------------------------------#
+# Variables change in 2015. Grab the same set of variables, and make sure the renaming is correct.
+# 2010-2014
 emp_list = list()
 
-for (y in tract_years) {
+for (y in 2010:2014) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S2301"))
   
@@ -90,7 +92,6 @@ for (y in tract_years) {
                 state = "CA", survey = "acs5", geometry = FALSE)
   
   la <- ca %>% filter((str_detect(variable, "001$") |
-                        str_detect(variable, "009$") |
                         str_detect(variable, "010$") |
                         str_detect(variable, "011$") |
                         str_detect(variable, "012$") |
@@ -105,7 +106,6 @@ for (y in tract_years) {
                         str_detect(variable, "021$") |
                         str_detect(variable, "022$") |
                         str_detect(variable, "023$") |
-                        str_detect(variable, "025$") |                        
                         str_detect(variable, "025$") |     
                         str_detect(variable, "026$") |     
                         str_detect(variable, "027$") |     
@@ -121,12 +121,59 @@ for (y in tract_years) {
 
 emp = do.call(rbind, emp_list)
 
-write_csv(emp, "data/Census/employment_tract.csv")
+
+# 2015-2017
+emp_list2 = list()
+
+for (y in 2015:2017) {
+  var <- load_variables(y, "acs5/subject", cache = TRUE)
+  columns <- var %>% filter(str_detect(name, "S2301"))
+  
+  ca <- get_acs(geography = "tract", year = y, variables = columns$name,
+                state = "CA", survey = "acs5", geometry = FALSE)
+  
+  la <- ca %>% filter((str_detect(variable, "001$") |
+                         str_detect(variable, "012$") |
+                         str_detect(variable, "013$") |
+                         str_detect(variable, "014$") |
+                         str_detect(variable, "015$") |
+                         str_detect(variable, "016$") |
+                         str_detect(variable, "017$") |
+                         str_detect(variable, "018$") |
+                         str_detect(variable, "019$") |
+                         str_detect(variable, "020$") |
+                         str_detect(variable, "021$") |
+                         str_detect(variable, "022$") |
+                         str_detect(variable, "023$") |
+                         str_detect(variable, "025$") |                        
+                         str_detect(variable, "028$") |     
+                         str_detect(variable, "031$") |     
+                         str_detect(variable, "032$") |     
+                         str_detect(variable, "033$") |
+                         str_detect(variable, "034$") | 
+                         str_detect(variable, "035$")) &     
+                        str_detect(GEOID, "^06037")
+  )
+  
+  la$year <- y
+  emp_list2[[y]] <- la
+  
+}
+
+emp2 = do.call(rbind, emp_list2)
+
+
+# Append dfs and export
+emp3 = rbind(emp, emp2)
+
+write_csv(emp3, "data/Census/employment_tract.csv")
 
 
 #------------------------------------------------------------------#
 ## Median Income by Tract -- got all years
 #------------------------------------------------------------------#
+# 2017: C03 appears for median income for families. C02 is median income for households. 
+# Use C01 and C02 because that's consistent across all years.
 income_list = list()
 
 for (y in tract_years) {
@@ -146,7 +193,8 @@ for (y in tract_years) {
                          str_detect(variable, "008$") |
                          str_detect(variable, "009$") |
                          str_detect(variable, "010$")) &
-                        str_detect(GEOID, "^06037")
+                        str_detect(GEOID, "^06037") &
+                        (str_detect(variable, "_C01") | str_detect(variable, "_C02"))
   )
   
   la$year <- y
@@ -162,9 +210,12 @@ write_csv(income, "data/Census/income_tract.csv")
 #------------------------------------------------------------------#
 ## Educational Attainment by Tract -- got all years
 #------------------------------------------------------------------#
+# To grab median earnings by edu attainment, need to specify specific vars for the years
+# Variables changed in 2015. Grab the same set for 2010-2014 and 2015-2017.
+# 2010-2014
 edu_list = list()
 
-for (y in tract_years) {
+for (y in 2010:2014) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S1501"))
   
@@ -190,9 +241,8 @@ for (y in tract_years) {
                          str_detect(variable, "034$") |
                          str_detect(variable, "035$") |
                          str_detect(variable, "036$") |
-                         str_detect(variable, "037$")) &
-                        str_detect(GEOID, "^06037") &
-                        str_detect(variable, "_C01_")
+                         str_detect(variable, "037$")) & 
+                        str_detect(GEOID, "^06037")
   )
   
   la$year <- y
@@ -202,12 +252,58 @@ for (y in tract_years) {
 
 edu = do.call(rbind, edu_list)
 
-write_csv(edu, "data/Census/educational_attainment_tract.csv")
+
+# 2015-2017
+edu_list2 = list()
+
+for (y in 2015:2017) {
+  var <- load_variables(y, "acs5/subject", cache = TRUE)
+  columns <- var %>% filter(str_detect(name, "S1501"))
+  
+  ca <- get_acs(geography = "tract", year = y, variables = columns$name,
+                state = "CA", survey = "acs5", geometry = FALSE)
+  
+  la <- ca %>% filter((str_detect(variable, "006$") |
+                         str_detect(variable, "007$") |
+                         str_detect(variable, "008$") |
+                         str_detect(variable, "009$") |
+                         str_detect(variable, "010$") |
+                         str_detect(variable, "011$") |
+                         str_detect(variable, "012$") |
+                         str_detect(variable, "013$") |
+                         str_detect(variable, "014$") |
+                         str_detect(variable, "015$") |
+                         str_detect(variable, "055$") |
+                         str_detect(variable, "056$") |
+                         str_detect(variable, "057$") |
+                         str_detect(variable, "058$") |
+                         str_detect(variable, "059$") |
+                         str_detect(variable, "060$") |
+                         str_detect(variable, "061$") |
+                         str_detect(variable, "062$") |
+                         str_detect(variable, "063$") |
+                         str_detect(variable, "064$")) & 
+                        str_detect(GEOID, "^06037")
+  )
+  
+  la$year <- y
+  edu_list2[[y]] <- la
+  
+}
+
+edu2 = do.call(rbind, edu_list2)
+
+
+# Append dfs and export
+edu3 = rbind(edu, edu2)
+
+write_csv(edu3, "data/Census/educational_attainment_tract.csv")
 
 
 #------------------------------------------------------------------#
 ## Poverty Status by Tract -- does not have 2010-2011
 #------------------------------------------------------------------#
+## S1701 table doesn't have the same variables from 2012-2017. Don't clean for now.
 pov_list = list()
 
 for (y in 2011) {
@@ -232,7 +328,8 @@ for (y in 2011) {
                          str_detect(variable, "024$") |
                          str_detect(variable, "025$") |
                          str_detect(variable, "026$")) &
-                        str_detect(GEOID, "^06037") 
+                        str_detect(GEOID, "^06037") &
+                        str_detect(variable, "_C01")
   )
   
   la$year <- y
@@ -241,8 +338,6 @@ for (y in 2011) {
 }
 
 pov = do.call(rbind, pov_list)
-
-table(pov$year)
 
 write_csv(pov, "data/Census/poverty_tract.csv")
 
@@ -260,7 +355,8 @@ for (y in tract_years) {
                 state = "CA", survey = "acs5", geometry = FALSE)
   
   la <- ca %>% filter((str_detect(variable, "001$") &
-                        str_detect(GEOID, "^06037")) 
+                         (str_detect(variable, "_C01") | str_detect(variable, "_C02")) &
+                         str_detect(GEOID, "^06037")) 
   )
   
   la$year <- y
@@ -270,17 +366,17 @@ for (y in tract_years) {
 
 pov2 = do.call(rbind, pov_list2)
 
-table(pov2$year)
-
 write_csv(pov2, "data/Census/poverty_families_tract.csv")
 
 
 #------------------------------------------------------------------#
 ## Households receiving Food Stamps by Tract -- got all years
 #------------------------------------------------------------------#
+# Variables change in 2015. Get same set from 2010-2014, 2015-2017.
+# 2010-2014
 food_list = list()
 
-for (y in tract_years) {
+for (y in 2010:2014) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S2201"))
   
@@ -290,7 +386,8 @@ for (y in tract_years) {
   la <- ca %>% filter((str_detect(variable, "001$") |
                          str_detect(variable, "004$") |
                          str_detect(variable, "016$")) &
-                         str_detect(GEOID, "^06037") 
+                         str_detect(GEOID, "^06037") &
+                         (str_detect(variable, "_C01") | str_detect(variable, "_c02"))
   )
   
   la$year <- y
@@ -300,9 +397,36 @@ for (y in tract_years) {
 
 food = do.call(rbind, food_list)
 
-table(food$year)
 
-write_csv(food, "data/Census/food_stamps_tract.csv")
+# 2015-2017
+food_list2 = list()
+
+for (y in 2015:2017) {
+  var <- load_variables(y, "acs5/subject", cache = TRUE)
+  columns <- var %>% filter(str_detect(name, "S2201"))
+  
+  ca <- get_acs(geography = "tract", year = y, variables = columns$name,
+                state = "CA", survey = "acs5", geometry = FALSE)
+  
+  la <- ca %>% filter((str_detect(variable, "001$") |
+                         str_detect(variable, "021$") |
+                         str_detect(variable, "034$")) &
+                        str_detect(GEOID, "^06037") & 
+                        (str_detect(variable, "_C01") | str_detect(variable, "_C03"))
+  )
+  
+  la$year <- y
+  food_list2[[y]] <- la
+  
+}
+
+food2 = do.call(rbind, food_list2)
+
+
+# Append dfs and export
+food3 = rbind(food, food2)
+
+write_csv(food3, "data/Census/food_stamps_tract.csv")
 
 
 #------------------------------------------------------------------#
@@ -322,8 +446,6 @@ for (y in 2010:2017) {
 }
 
 public_assistance = do.call(rbind, public_assistance_list)
-
-table(public_assistance$year)
 
 write_csv(public_assistance, "src/data/Census/public_assistance_tract.csv")
 
@@ -345,8 +467,6 @@ for (y in 2010:2017) {
 }
 
 agg_public_assistance = do.call(rbind, agg_public_assistance_list)
-
-table(agg_public_assistance$year)
 
 write_csv(agg_public_assistance, "data/Census/aggregate_public_assistance_tract.csv")
 

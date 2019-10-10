@@ -4,7 +4,7 @@ metadata:
 sources:
   city_boundary:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/city_boundary.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/city_boundary.geojson
     description: "## City Boundary\n\nCity Boundary\_"
     driver: intake_geopandas.geopandas.GeoJSONSource
     metadata:
@@ -76,9 +76,9 @@ sources:
         theme:
         - geospatial
         title: City Boundary
-  city_council_districts:
+  council_districts:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/city_council_districts.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/council_districts.geojson
     description: "## LA City Council Districts (Adopted 2012)\n\nCouncil Districts\_"
     driver: intake_geopandas.geopandas.GeoJSONSource
     metadata:
@@ -152,9 +152,94 @@ sources:
         theme:
         - geospatial
         title: LA City Council Districts (Adopted 2012)
-  neighborhood_council_boundaries:
+  latimes_neighborhoods:
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/neighborhood_council_boundaries.geojson
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/latimes_neighborhoods.geojson
+    description: "## LA Times Neighborhood Boundaries\n\n<div><div><b>Description:\_\
+      </b>The neighborhoods shown in this dataset are derived from a larger dataset\
+      \ drawn and maintained by the Data Desk, a team of Times reporters and Web developers\
+      \ in downtown L.A. The boundaries have expanded and shifted over time and now\
+      \ cover all of Los Angeles County broken down into 272 neighborhoods.</div><div><br\
+      \ /></div><div>This version of the LA Times boundaries only includes neighborhoods\
+      \ fully or partially within the City of Los Angeles. Neighborhoods that extend\
+      \ into other cities have been clipped to only show the portion(s) of the neighborhoods\
+      \ that are within the City of Los Angeles.</div></div><div><br /></div><div><b>Data\
+      \ Source:\_</b><a href='http://maps.latimes.com/neighborhoods/' target='_blank'>Los\
+      \ Angeles Times' Mapping LA project.</a></div><div><b>Last Updated: </b>October\
+      \ 7, 2016</div><div><b>Refresh Rate: </b>Never - Historical data (Note: should\
+      \ the LA Times update their Mapping LA project with new boundaries in the future,\
+      \ a new LA-specific layer will be added to the GeoHub as well.)</div>"
+    driver: intake_geopandas.geopandas.GeoJSONSource
+    metadata:
+      catalog_dir: ''
+      dcat:
+        '@type': dcat:Dataset
+        accessLevel: public
+        contactPoint:
+          '@type': vcard:Contact
+          fn: alex.pudlin_lamayor2
+        description: "<div><div><b>Description:\_</b>The neighborhoods shown in this\
+          \ dataset are derived from a larger dataset drawn and maintained by the\
+          \ Data Desk, a team of Times reporters and Web developers in downtown L.A.\
+          \ The boundaries have expanded and shifted over time and now cover all of\
+          \ Los Angeles County broken down into 272 neighborhoods.</div><div><br /></div><div>This\
+          \ version of the LA Times boundaries only includes neighborhoods fully or\
+          \ partially within the City of Los Angeles. Neighborhoods that extend into\
+          \ other cities have been clipped to only show the portion(s) of the neighborhoods\
+          \ that are within the City of Los Angeles.</div></div><div><br /></div><div><b>Data\
+          \ Source:\_</b><a href='http://maps.latimes.com/neighborhoods/' target='_blank'>Los\
+          \ Angeles Times' Mapping LA project.</a></div><div><b>Last Updated: </b>October\
+          \ 7, 2016</div><div><b>Refresh Rate: </b>Never - Historical data (Note:\
+          \ should the LA Times update their Mapping LA project with new boundaries\
+          \ in the future, a new LA-specific layer will be added to the GeoHub as\
+          \ well.)</div>"
+        distribution:
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0
+          format: Web Page
+          mediaType: text/html
+          title: ArcGIS Hub Dataset
+        - '@type': dcat:Distribution
+          accessURL: https://services5.arcgis.com/7nsPwEMP38bSkCjy/arcgis/rest/services/LA_Times_Neighborhoods/FeatureServer/0
+          format: Esri REST
+          mediaType: application/json
+          title: Esri Rest API
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0.geojson
+          format: GeoJSON
+          mediaType: application/vnd.geo+json
+          title: GeoJSON
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0.csv
+          format: CSV
+          mediaType: text/csv
+          title: CSV
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0.kml
+          format: KML
+          mediaType: application/vnd.google-earth.kml+xml
+          title: KML
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0.zip
+          format: ZIP
+          mediaType: application/zip
+          title: Shapefile
+        identifier: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0
+        issued: '2016-10-07T21:32:05.000Z'
+        keyword:
+        - neighborhoods
+        landingPage: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0
+        license: http://geohub.lacity.org/datasets/d6c55385a0e749519f238b77135eafac_0/license.json
+        modified: '2019-01-31T20:18:31.000Z'
+        publisher:
+          source: City of Los Angeles Hub
+        spatial: -118.6643,33.7032,-118.1558,34.3383
+        theme:
+        - geospatial
+        title: LA Times Neighborhood Boundaries
+  neighborhood_councils:
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/neighborhood_councils.geojson
     description: '## Neighborhood Council Boundaries (2018)
 
 
@@ -235,4 +320,81 @@ sources:
         theme:
         - geospatial
         title: Neighborhood Council Boundaries (2018)
+  zip_codes:
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/source/zip_codes.geojson
+    description: '## Zip Codes (LA County)
+
+
+      Zip code boundaries from Los Angeles County.'
+    driver: intake_geopandas.geopandas.GeoJSONSource
+    metadata:
+      catalog_dir: ''
+      dcat:
+        '@type': dcat:Dataset
+        accessLevel: public
+        contactPoint:
+          '@type': vcard:Contact
+          fn: lahub_admin
+        description: Zip code boundaries from Los Angeles County.
+        distribution:
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26
+          format: Web Page
+          mediaType: text/html
+          title: ArcGIS Hub Dataset
+        - '@type': dcat:Distribution
+          accessURL: https://maps.lacity.org/lahub/rest/services/Boundaries/MapServer/26
+          format: Esri REST
+          mediaType: application/json
+          title: Esri Rest API
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26.geojson
+          format: GeoJSON
+          mediaType: application/vnd.geo+json
+          title: GeoJSON
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26.csv
+          format: CSV
+          mediaType: text/csv
+          title: CSV
+        - '@type': dcat:Distribution
+          accessURL: https://maps.lacity.org/lahub/services/Boundaries/MapServer/WFSServer?request=GetCapabilities&service=WFS
+          format: OGC WFS
+          mediaType: application/vnd.ogc.wfs_xml
+          title: OGC WFS
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26.kml
+          format: KML
+          mediaType: application/vnd.google-earth.kml+xml
+          title: KML
+        - '@type': dcat:Distribution
+          accessURL: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26.zip
+          format: ZIP
+          mediaType: application/zip
+          title: Shapefile
+        - '@type': dcat:Distribution
+          accessURL: https://maps.lacity.org/lahub/services/Boundaries/MapServer/WMSServer?request=GetCapabilities&service=WMS
+          format: OGC WMS
+          mediaType: application/vnd.ogc.wms_xml
+          title: OGC WMS
+        identifier: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26
+        issued: '2015-11-14T01:33:34.000Z'
+        keyword:
+        - NavigateLA
+        - Los Angeles
+        - LA
+        - City of LA
+        - BOE
+        - boundaries
+        - zipcodes
+        landingPage: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26
+        license: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26/license.json
+        modified: '2018-05-11T01:48:06.000Z'
+        publisher:
+          source: City of Los Angeles Hub
+        spatial: -118.972,32.776,-117.6336,34.8313
+        theme:
+        - geospatial
+        title: Zip Codes (LA County)
 
