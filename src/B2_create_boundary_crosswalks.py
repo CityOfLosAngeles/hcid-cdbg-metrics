@@ -25,11 +25,19 @@ tracts = tracts[['GEOID', 'clipped_area', 'geometry']]
 zipcodes = zipcodes[['ZIPCODE', 'geometry']]
 # Get rid of a problematic zipcode (Geometry Collection, not Polygon/MultiPolygon)
 zipcodes = zipcodes[zipcodes.ZIPCODE != '91608']
+zipcodes.rename(columns = {'ZIPCODE': 'ID'}, inplace = True)
 
 neighborhoods = neighborhoods[['LATimesID', 'geometry']]
+neighborhoods.rename(columns = {'LATimesID': 'ID'}, inplace = True)
+
 neighborhood_councils = neighborhood_councils[['NC', 'geometry']]
+neighborhood_councils.rename(columns = {'NC': 'ID'}, inplace = True)
+
 council_districts = council_districts[['District', 'geometry']]
+council_districts.rename(columns = {'District': 'ID'}, inplace = True)
+
 congressional_districts = congressional_districts[['GEOID', 'geometry']]
+congressional_districts.rename(columns = {'GEOID': 'ID'}, inplace = True)
 
 
 # Loop through each boundary, find the intersection between census tract and boundary
@@ -48,12 +56,35 @@ for key, value in boundaries.items():
     gdf = gdf[gdf.intersect >= 0.1]
     gdf['allocate'] = gdf.apply(lambda row: 1 if row.intersect >= 0.9 else row.intersect, axis = 1)
     gdf.drop(columns = ['clipped_area', 'new_area', 'intersect', 'geometry'] , inplace = True)
-    if key.find('congressional') != -1:
-        gdf.rename(columns = {'GEOID_1': 'GEOID', 'GEOID_2': 'GEOID_congress'}, inplace = True)
+    #if key.find('congressional') != -1:
+        #gdf.rename(columns = {'GEOID_1': 'GEOID', 'GEOID_2': 'GEOID_congress'}, inplace = True)
     processed[key] = gdf
 
 
+# Make the crosswalk wide (use to merge with Census tabular data)
+wide_dfs = {}
+
+for key, df in processed.items():
+    # Convert ID to integer, so later we can take the max on it
+    df['ID'] = df.ID.astype(int)
+    # Count number of obs for each tract (how many CDs, NCs it overlaps with)
+    df['obs'] = df.groupby('GEOID').cumcount() + 1
+    df['max_val'] = df.groupby('GEOID')['obs'].transform('max')
+    n = df.obs.max()
+    # Loop over each observation and fill in the wide df
+    for i in range(1, n + 1):
+        id_col = f"ID{i}"
+        allocate_col = f"allocate{i}"
+        df[id_col] = df.apply(lambda row: row.ID if row.obs==i else np.nan, axis = 1)
+        df[id_col] = df.groupby('GEOID')[id_col].transform('max')
+        df[allocate_col] = df.apply(lambda row: row.allocate if row.obs==i else np.nan, axis = 1)
+        df[allocate_col] = df.groupby('GEOID')[allocate_col].transform('max')
+    df.drop(columns = ['ID', 'allocate', 'obs'], inplace = True)
+    df = df.drop_duplicates()
+    wide_dfs[key] = df
+
+
 # Export the crosswalk as a parquet
-for key, value in processed.items():
-    value.sort_values(['GEOID', 'allocate'], ascending = [True, False]).to_parquet(f'./gis/crosswalk_tracts_{key}.parquet')
-    value.sort_values(['GEOID', 'allocate'], ascending = [True, False]).to_parquet(f's3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_{key}.parquet')
+for key, value in wide_dfs.items():
+    value.sort_values('GEOID', ascending = True).to_parquet(f'./gis/crosswalk_tracts_{key}.parquet')
+    value.sort_values('GEOID', ascending = True).to_parquet(f's3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_{key}.parquet')
