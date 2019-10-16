@@ -11,12 +11,6 @@ housing = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/housing_units_tr
 pub = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/public_assistance_tract.csv') 
 agg_pub = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/aggregate_public_assistance_tract.csv') 
 
-"""
-pop = pd.read_csv('../data/Census/population_tract.csv')
-housing = pd.read_csv('../data/Census/housing_units_tract.csv')
-pub = pd.read_csv('../data/Census/public_assistance_tract.csv') 
-agg_pub = pd.read_csv('../data/Census/aggregate_public_assistance_tract.csv') 
-"""
 
 # Save all the dfs into a dictionary and clean up GEOID
 censusapi = {'pop': pop, 'housing': housing, 'pub': pub, 'agg_pub': agg_pub}
@@ -46,14 +40,15 @@ for key, df in censusapi.items():
 # Initial cleaning for tidycensus dfs
 emp = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/employment_tract.csv')
 income = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_tract.csv')
+income_range = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_range_tract.csv')
 edu = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/educational_attainment_tract.csv') 
 pov_fam = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_families_tract.csv') 
 food = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/food_stamps_tract.csv') 
 
 
 # Save all the dfs into a dictionary
-tidycensus = {'emp': emp, 'income': income, 'edu': edu, 
-              'pov_fam': pov_fam, 'food': food}
+tidycensus = {'emp': emp, 'income': income, 'income_range': income_range, 
+            'edu': edu, 'pov_fam': pov_fam, 'food': food}
 
 for key, df in tidycensus.items():
     df.GEOID = df.GEOID.astype(str)

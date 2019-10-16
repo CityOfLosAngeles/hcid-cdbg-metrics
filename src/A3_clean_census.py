@@ -24,7 +24,8 @@ secondary variables: white, black, asian, etc
 acs_tables = {'B01003': 'pop', 'B25001': 'housing', 
              'S1903': 'income', 'S2301': 'emp', 'S1501': 'edu',
              'S1702': 'povfam', 'S2201': 'food', 
-             'B19058': 'pubassist', 'B19067': 'aggpubassist'}
+             'B19058': 'pubassist', 'B19067': 'aggpubassist',
+             'B19001': 'incomerange'}
 
 
 # Identify where to extract the ACS table name
@@ -64,6 +65,29 @@ def income_vars(row):
         return 'medincome'
     elif row.variable.find('_C03') != -1:
         return 'medincome'
+
+def incomerange_vars(row):
+    if row.variable.find('B19001_') != -1:
+        return 'total'
+    elif row.variable.find('B19001A') != -1:
+        return 'white'
+    elif row.variable.find('B19001B') != -1:
+        return 'black'
+    elif row.variable.find('B19001C') != -1:
+        return 'amerind'
+    elif row.variable.find('B19001D') != -1:
+        return 'asian'
+    elif row.variable.find('B19001E') != -1:
+        return 'pacis'
+    elif row.variable.find('B19001F') != -1:
+        return 'other'
+    elif row.variable.find('B19001G') != -1:
+        return 'race2'
+    elif row.variable.find('B19001H') != -1:
+        return 'nonhisp'
+    elif row.variable.find('B19001I') != -1:
+        return 'hisp'
+
 
 # There are 2 variables that appear as C02 from 2015-2017, but appeared as C01 from 2010-2014. Clean later, use the same main_var for now.
 def edu_vars(row):
@@ -107,6 +131,8 @@ def pick_table(row):
         return emp_vars(row)
     elif row.table=='income':
         return income_vars(row)
+    elif row.table=='incomerange':
+        return incomerange_vars(row)
     elif row.table=='edu':
         return edu_vars(row)
     elif row.table=='povfam':
@@ -139,8 +165,13 @@ emp2015 = {'01': 'total_pop16', '12': 'white', '13': 'black', '14': 'amerind', '
            '28': 'total_pov', '31': 'total_pop25', '32': 'lhs', '33': 'hs', '34': 'college', '35': 'ba'}
 
 
-income_vars = {'01': 'total', '02': 'white', '03': 'black', '04': 'amerind', '05': 'asian',
+income = {'01': 'total', '02': 'white', '03': 'black', '04': 'amerind', '05': 'asian',
            '06': 'pacis', '07': 'other', '08': 'race2', '09': 'hisp', '10': 'nonhisp'}
+
+incomerange = {'01': 'total', '02': 'lt10', '03': 'r10to14', '04': 'r15to19', '05': 'r20to24',
+           '06': 'r25to29', '07': 'r30to34', '08': 'r35to39', '09': 'r40to44', '10': 'r45to49',
+           '11': 'r50to59', '12': 'r60to74', '13': 'r75to99', '14': 'r100to124', '15': 'r125to149',
+           '16': 'r150to199', '17': 'gt200'}
 
 
 edu2010 = {'06': 'total_pop25', '07': 'hs9', '08': 'hs12', '09': 'hs', '10': 'college',
@@ -161,7 +192,9 @@ food2015 = {'01': 'total', '21': 'pov', '34': 'medhhincome'}
 
 def pick_secondary_var(row):
     if row.table=='income':
-        return income_vars[row.last2]
+        return income[row.last2]
+    elif row.table=='incomerange':
+        return incomerange[row.last2]
     elif (row.table=='emp') & (row.year <= 2014):
         return emp2010[row.last2]
     elif (row.table=='emp') & (row.year >= 2015):

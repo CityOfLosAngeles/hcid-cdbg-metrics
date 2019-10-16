@@ -242,6 +242,51 @@ write_csv(income3, "data/Census/income_tract.csv")
 
 
 #------------------------------------------------------------------#
+## Household Income Ranges by Tract -- got all years
+#------------------------------------------------------------------#
+inc_list = list()
+
+# Total 
+for (y in 2010:2017) {
+  var <- load_variables(y, "acs5", cache = TRUE)
+  columns <- var %>% filter(str_detect(name, "B19001"))
+  
+  ca <- get_acs(geography = "tract", year = y, variables = columns$name,
+                state = "CA", survey = "acs5", geometry = FALSE)
+  
+  la <- ca %>% filter((str_detect(variable, "001$") |
+                         str_detect(variable, "002$") |
+                         str_detect(variable, "003$") |
+                         str_detect(variable, "004$") |
+                         str_detect(variable, "005$") |
+                         str_detect(variable, "006$") |
+                         str_detect(variable, "007$") |
+                         str_detect(variable, "008$") |
+                         str_detect(variable, "009$") |
+                         str_detect(variable, "010$") |
+                         str_detect(variable, "011$") |
+                         str_detect(variable, "012$") |
+                         str_detect(variable, "013$") |
+                         str_detect(variable, "014$") |
+                         str_detect(variable, "015$") |
+                         str_detect(variable, "016$") |
+                         str_detect(variable, "017$")) &
+                        str_detect(GEOID, "^06037")
+  )
+  
+  la$year <- y
+  inc_list[[y]] <- la
+  
+}
+
+
+# Append all the years into a df
+inc = do.call(rbind, inc_list)
+
+write_csv(inc, "data/Census/income_range_tract.csv")
+
+
+#------------------------------------------------------------------#
 ## Educational Attainment by Tract -- got all years
 #------------------------------------------------------------------#
 # To grab median earnings by edu attainment, need to specify specific vars for the years
