@@ -13,14 +13,13 @@ setwd("GitHub/hcid-cdbg-metrics")
 
 ## Load years
 tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
-zipcode_years1 <- list(1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 
-                       2006, 2007, 2008, 2009, 2010, 2011)
-zipcode_years2 <- list(2012, 2013, 2014, 2015, 2016)
 
 
 #------------------------------------------------------------------#
 ## Population and Housing Units by Tract -- got all years
 #------------------------------------------------------------------#
+print('Download population (B01003) 2010-17')
+
 pop_list = list()
 
 for (y in tract_years) {
@@ -38,10 +37,12 @@ for (y in tract_years) {
 
 
 # Append all the years into a df
+print('Append population dfs')
 pop = do.call(rbind, pop_list)
 
 
 
+print('Download housing units (B25001) 2010-17')
 housing_list = list()
 
 for (y in tract_years) {
@@ -55,17 +56,22 @@ for (y in tract_years) {
   housing_list[[y]] <- la
 }
 
+print('Append housing dfs')
 housing = do.call(rbind, housing_list)
 
 
 # Export as csv
 write_csv(pop, "data/Census/population_tract.csv")
+print('Saved data/Census/population_tract.csv')
+
 write_csv(housing, "data/Census/housing_units_tract.csv")
+print('Saved data/Census/housing_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Population by Block Group -- get 2017, use this to aggregate up to congressional district?
 #------------------------------------------------------------------#
+print('Download population (B01003) by block group, 2017 only')
 la <- getCensus(name = "acs/acs5", 
                 vars = c("NAME", "group(B01003)"),
                 region = "block group:*", vintage = 2017, 
@@ -74,3 +80,4 @@ la <- getCensus(name = "acs/acs5",
 la$year <- 2017
 
 write_csv(la, "data/Census/population_block_group.csv")
+print('Saved data/Census/population_block_group.csv')

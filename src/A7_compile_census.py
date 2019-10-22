@@ -4,6 +4,22 @@ import numpy as np
 import pandas as pd
 import intake
 import os
+import boto3
+
+
+# Read in downloaded csvs and write to S3
+s3 = boto3.client('s3')
+
+census_files = ['population_tract', 'housing_units_tract', 'employment_tract', 
+                'income_tract', 'income_range_tract', 'income_range_hh_tract', 
+                'poverty_tract', 'poverty_families_tract', 'poverty_families_hh_tract',
+                'educational_attainment_tract', 
+                'food_stamps_tract', 'public_assistance_tract', 'aggregate_public_assistance_tract', 'health_insurance_tract']
+
+for filename in census_files:
+    df = pd.read_csv(f'./data/Census/{filename}.csv')
+    df.to_csv(f's3://hcid-cdbg-project-ita-data/data/raw/{filename}.csv')
+
 
 # Initial cleaning for censusapi dfs
 pop = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/population_tract.csv')
@@ -41,14 +57,18 @@ for key, df in censusapi.items():
 emp = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/employment_tract.csv')
 income = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_tract.csv')
 income_range = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_range_tract.csv')
-edu = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/educational_attainment_tract.csv') 
+income_range_hh = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/income_range_hh_tract.csv')
+edu = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/educational_attainment_tract.csv')
+pov = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_tract.csv') 
 pov_fam = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_families_tract.csv') 
+pov_fam_hh = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/poverty_families_hh_tract.csv')
 food = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/food_stamps_tract.csv') 
+health = pd.read_csv('s3://hcid-cdbg-project-ita-data/data/raw/health_insurance_tract.csv')
 
 
 # Save all the dfs into a dictionary
-tidycensus = {'emp': emp, 'income': income, 'income_range': income_range, 
-            'edu': edu, 'pov_fam': pov_fam, 'food': food}
+tidycensus = {'emp': emp, 'income': income, 'income_range': income_range, 'income_range_hh': income_range_hh, 
+            'edu': edu, 'pov': pov, 'pov_fam': pov_fam, 'pov_fam_hh': pov_fam_hh, 'food': food, 'health': health}
 
 for key, df in tidycensus.items():
     df.GEOID = df.GEOID.astype(str)

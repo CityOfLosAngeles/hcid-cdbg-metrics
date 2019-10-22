@@ -19,6 +19,7 @@ tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
 ## Median Income by Tract -- got all years
 #------------------------------------------------------------------#. 
 # Use C01 and C02 for 2010-2016; C01 and C03 for 2017. 2017 added new column that shows % of hh (derived from C01).
+print('Download median income (S1903) 2010-16')
 income_list = list()
 
 for (y in 2010:2016) {
@@ -47,10 +48,8 @@ for (y in 2010:2016) {
   
 }
 
-income = do.call(rbind, income_list)
 
-
-income_list2 = list()
+print('Download median income (S1903) 2017')
 for (y in 2017) 
   {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
@@ -74,22 +73,23 @@ for (y in 2017)
   )
   
   la$year <- y
-  income_list2[[y]] <- la
+  income_list[[y]] <- la
   
 }
 
-income2 = do.call(rbind, income_list2)
-
 
 # Append dfs and export
-income3 = rbind(income, income2)
+print('Append median income dfs')
+income = do.call(rbind, income_list)
 
-write_csv(income3, "data/Census/income_tract.csv")
+write_csv(income, "data/Census/income_tract.csv")
+print('Saved data/Census/income_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Household Income Ranges by Tract -- got all years
 #------------------------------------------------------------------#
+print('Download household income ranges (B19001) 2010-17')
 inc_list = list()
 
 
@@ -127,17 +127,20 @@ for (y in tract_years) {
 
 
 # Append all the years into a df
+print('Append household income ranges')
 inc = do.call(rbind, inc_list)
 
+
 write_csv(inc, "data/Census/income_range_tract.csv")
+print('Saved data/Census/income_range_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Income Ranges by Tract and Household Type -- got all years
 #------------------------------------------------------------------#
+print('Download income ranges by household type (S1901) 2010-17')
 inc2_list = list()
-
-# Total 
+ 
 for (y in tract_years) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S1901"))
@@ -168,7 +171,8 @@ for (y in tract_years) {
 
 
 # Append all the years into a df
+print('Append income ranges df')
 inc2 = do.call(rbind, inc2_list)
 
 write_csv(inc2, "data/Census/income_range_hh_tract.csv")
-
+print('Saved data/Census/income_range_hh_tract.csv')

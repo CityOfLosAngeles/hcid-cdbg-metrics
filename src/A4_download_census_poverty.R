@@ -22,6 +22,8 @@ tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
 pov_list = list()
 
 # 2012-2014
+print('Download poverty status (S1701) 2010-14')
+
 for (y in 2012:2014) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S1701"))
@@ -57,6 +59,8 @@ for (y in 2012:2014) {
 
 
 # 2015-2017
+print('Download poverty status (S1701) 2015-17')
+
 for (y in 2015:2017) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "S1701"))
@@ -91,15 +95,17 @@ for (y in 2015:2017) {
   
 }
 
-
+print('Append poverty status dfs')
 pov = do.call(rbind, pov_list)
 
 write_csv(pov, "data/Census/poverty_tract.csv")
+print('Saved data/Census/poverty_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Poverty Status of Families by Tract -- got all years
 #------------------------------------------------------------------#
+print('Download poverty status of families (S1702) 2010-17')
 pov_list2 = list()
 
 for (y in tract_years) {
@@ -119,14 +125,17 @@ for (y in tract_years) {
   
 }
 
+print('Append poverty status of families dfs')
 pov2 = do.call(rbind, pov_list2)
 
 write_csv(pov2, "data/Census/poverty_families_tract.csv")
+print('Saved data/Census/poverty_families_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Poverty Status of Families by Household Type by Tract -- got all years
 #------------------------------------------------------------------#
+print('Download poverty status of families by household type (B17014) 2010-17')
 pov_list3 = list()
 
 for (y in tract_years) {
@@ -149,6 +158,8 @@ for (y in tract_years) {
   
 }
 
+print('Append poverty status of families by household type dfs')
 pov3 = do.call(rbind, pov_list3)
 
 write_csv(pov3, "data/Census/poverty_families_hh_tract.csv")
+print('Saved data/Census/poverty_families_hh_tract.csv')

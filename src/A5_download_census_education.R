@@ -13,10 +13,6 @@ setwd("GitHub/hcid-cdbg-metrics")
 
 ## Load years
 tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
-zipcode_years1 <- list(1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 
-                       2006, 2007, 2008, 2009, 2010, 2011)
-zipcode_years2 <- list(2012, 2013, 2014, 2015, 2016)
-
 
 #------------------------------------------------------------------#
 ## Educational Attainment by Tract -- got all years
@@ -27,6 +23,7 @@ zipcode_years2 <- list(2012, 2013, 2014, 2015, 2016)
 # 2015-2017: 014-015 uses C02 to show percent HS or above, percent BA or above, and C01 is nan
 
 # 2010-2014
+print('Download educational attainment (S1501) 2010-14')
 edu_list = list()
 
 for (y in 2010:2014) {
@@ -65,11 +62,9 @@ for (y in 2010:2014) {
   
 }
 
-edu = do.call(rbind, edu_list)
-
 
 # 2015-2017
-edu_list2 = list()
+print('Download educational attainment (S1501) 2015-17')
 
 for (y in 2015:2017) {
   var <- load_variables(y, "acs5/subject", cache = TRUE)
@@ -107,16 +102,15 @@ for (y in 2015:2017) {
   )
   
   la$year <- y
-  edu_list2[[y]] <- la
+  edu_list[[y]] <- la
   
 }
 
-edu2 = do.call(rbind, edu_list2)
-
 
 # Append dfs and export
-edu3 = rbind(edu, edu2)
+print('Append educational attainment dfs')
+edu = do.call(rbind, edu_list)
 
-write_csv(edu3, "data/Census/educational_attainment_tract.csv")
 
-
+write_csv(edu, "data/Census/educational_attainment_tract.csv")
+print('Saved data/Census/educational_attainment_tract.csv')

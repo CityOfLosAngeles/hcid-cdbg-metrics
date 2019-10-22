@@ -24,6 +24,7 @@ zipcode_years2 <- list(2012, 2013, 2014, 2015, 2016)
 #------------------------------------------------------------------#
 # Variables change in 2015. Grab the same set of variables, and make sure the renaming is correct.
 # 2010-2014
+print('Download employment status (S2301) 2010-14')
 emp_list = list()
 
 for (y in 2010:2014) {
@@ -65,6 +66,7 @@ emp = do.call(rbind, emp_list)
 
 
 # 2015-2017
+print('Download employment status (S2301) 2015-17')
 emp_list2 = list()
 
 for (y in 2015:2017) {
@@ -106,21 +108,25 @@ emp2 = do.call(rbind, emp_list2)
 
 
 # Append dfs and export
+print('Append employment status dfs')
 emp3 = rbind(emp, emp2)
 
+
 write_csv(emp3, "data/Census/employment_tract.csv")
+print('Saved data/Census/employment_tract.csv')
 
 
 #------------------------------------------------------------------#
 ## Employment, Establishments, and Annual Payroll by Zip Code -- got all years
 # Zip Code Business Patterns
 #------------------------------------------------------------------#
-business_list = list()
-
 #apis <- listCensusApis()
 #View(apis)
 
 # 1994-2011 data
+print('Download employment_zipcode 1994-2011')
+business_list = list()
+
 for (y in zipcode_years1) {
   ca <- getCensus(name = "zbp", 
                   vars = c("EMP", "ESTAB", "PAYANN"),
@@ -131,14 +137,17 @@ for (y in zipcode_years1) {
   business_list[[y]] <- ca
 }
 
+print('Append employment_zipcode dfs')
 business = do.call(rbind, business_list)
 
-write_csv(business, "data/Census/employment_zipcode_1994_2011.csv")
 
+write_csv(business, "data/Census/employment_zipcode_1994_2011.csv")
+print('Saved data/Census/employment_zipcode_1994_2011.csv')
 
 
 # 2012-2016 data changes slightly. 
 # Annual payroll reported in thousands...and check EMP column. Must also use NAICS2012 code to select for all industries.
+print('Download employment_zipcode 2012-17')
 business_list2 = list()
 
 for (y in zipcode_years2) {
@@ -151,7 +160,9 @@ for (y in zipcode_years2) {
   business_list2[[y]] <- ca
 }
 
-
+print('Append employment_zipcode dfs')
 business2 = do.call(rbind, business_list2)
 
+
 write_csv(business2, "data/Census/employment_zipcode_2012_2016.csv")
+print('Saved data/Census/employment_zipcode_2012_2016.csv')
