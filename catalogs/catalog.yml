@@ -17,8 +17,28 @@ sources:
     driver: dcat
     args:
       url: http://gisdata-scag.opendata.arcgis.com/data.json
-  pop:
-    driver: csv
-    description: City of LA census tracts (2010) with 2017 ACS population attached.
+  crosswalk_tracts_council_districts:
+    driver: parquet
+    description: Crosswalk that links census tracts to council districts.
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/data/raw/.csv
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_council_districts.parquet
+  crosswalk_tracts_neighborhood_councils:
+    driver: parquet
+    description: Crosswalk that links census tracts to neighborhood councils.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_neighborhood_councils.parquet
+  crosswalk_tracts_zipcodes:
+    driver: parquet
+    description: Crosswalk that links census tracts to zipcodes.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_zipcodes.parquet
+  crosswalk_tracts_congressional_districts:
+    driver: parquet
+    description: Crosswalk that links census tracts to congressional districts (116th).
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_congressional_districts.parquet
+  crosswalk_tracts_neighborhoods:
+    driver: parquet
+    description: Crosswalk that links census tracts to LA Times neighborhoods.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_neighborhoods.parquet
