@@ -5,9 +5,24 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+  - bash: |
+      conda create --yes --name testenv
+      source activate testenv
+      echo $AWS_REGION
+      conda install --yes -c conda-forge --file conda-requirements.txt
+    displayName: Create conda env
+  - bash: |
+      source activate testenv
+      pip install -r requirements.txt
+    displayName: Install pypi requirements
+  - bash: |
+      source activate testenv
+      make test
+    displayName: Test scripts and notebooks
   - task: Docker@2
-    displayName: Build the project image
+    displayName: Build the project docker image
     inputs:
-      repository: 
       command: build
       Dockerfile: Dockerfile
