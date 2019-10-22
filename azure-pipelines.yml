@@ -1,0 +1,13 @@
+trigger:
+- azure-pipeline
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+  - task: Docker@2
+    displayName: Build the project image
+    inputs:
+      repository: 
+      command: build
+      Dockerfile: Dockerfile
