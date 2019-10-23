@@ -1,5 +1,5 @@
 trigger:
-- azure-pipeline
+- master
 
 pool:
   vmImage: 'Ubuntu-16.04'
