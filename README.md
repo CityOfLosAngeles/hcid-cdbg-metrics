@@ -1,5 +1,6 @@
 hcid-cdbg-metrics
 ==============================
+[![Build Status](https://dev.azure.com/ianrose/hcid-cdbg-metrics/_apis/build/status/CityOfLosAngeles.hcid-cdbg-metrics?branchName=master)](https://dev.azure.com/ianrose/hcid-cdbg-metrics/_build/latest?definitionId=1&branchName=master)
 
 Evaluate Community Development Block Grants
 

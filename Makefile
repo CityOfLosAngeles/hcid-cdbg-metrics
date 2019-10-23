@@ -16,3 +16,6 @@ clean_census:
 	#r src/A1_download_census_data.R
 	python src/A2_compile_census.py
 	python src/A3_clean_census.py
+
+test:
+	make -C notebooks
