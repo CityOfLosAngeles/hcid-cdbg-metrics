@@ -10,14 +10,8 @@ steps:
   - bash: |
       conda create --yes --name testenv
       source activate testenv
-      pip install boto3
-      echo $AWS_ACCESS_KEY_ID
-      python bototest.py
       conda install --yes -c conda-forge --file conda-requirements.txt
     displayName: Create conda env
-    env:
-      AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-      AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
   - bash: |
       source activate testenv
       pip install -r requirements.txt
@@ -26,6 +20,9 @@ steps:
       source activate testenv
       make test
     displayName: Test scripts and notebooks
+    env:
+      AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+      AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
   - task: Docker@2
     displayName: Build the project docker image
     inputs:
