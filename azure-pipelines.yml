@@ -10,9 +10,14 @@ steps:
   - bash: |
       conda create --yes --name testenv
       source activate testenv
-      echo $AWS_REGION
+      pip install boto3
+      echo $AWS_ACCESS_KEY_ID
+      python bototest.py
       conda install --yes -c conda-forge --file conda-requirements.txt
     displayName: Create conda env
+    env:
+      AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+      AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
   - bash: |
       source activate testenv
       pip install -r requirements.txt
