@@ -14,10 +14,13 @@ import numpy as np
 import pandas as pd
 import intake
 import os
+from tqdm import tqdm 
+tqdm.pandas() 
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
 df = pd.read_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
+print('Read in S3')
 
 # Create empty dictionary to store results of cleaning
 final_dfs = {}
@@ -25,6 +28,7 @@ final_dfs = {}
 #-----------------------------------------------------------------#
 # Employment
 #-----------------------------------------------------------------#
+print('Clean employment table')
 emp = df[df.table=='emp']
 
 # Create column called var_type
@@ -34,7 +38,7 @@ def emp_type(row):
     elif (row.main_var != 'pop'):
         return 'percent'
     
-emp['var_type'] = emp.apply(emp_type, axis = 1)
+emp['var_type'] = emp.progress_apply(emp_type, axis = 1)
 
 
 # For each table, do a merge with pop values, convert the percents back to numbers and save into dictionary
@@ -78,6 +82,7 @@ final_dfs.update({'emp': appended})
 #-----------------------------------------------------------------#
 ## Income
 #-----------------------------------------------------------------#
+print('Clean income table')
 income = df[df.table=='income']
 
 # Create column called var_type
@@ -91,11 +96,11 @@ def income_type(row):
     elif (row.main_var=='hh') & (row.second_var != 'hh') & (row.year >= 2017):
         return 'number'
 
-income['var_type'] = income.apply(income_type, axis = 1)
+income['var_type'] = income.progress_apply(income_type, axis = 1)
 
 
 # Create a denominator column. Use this to convert percent values into numbers.
-income['denom'] = income.apply(lambda row: row.value if row.new_var=='hh_total' else np.nan, axis = 1)
+income['denom'] = income.progress_apply(lambda row: row.value if row.new_var=='hh_total' else np.nan, axis = 1)
 
 
 #################################################
@@ -120,11 +125,12 @@ def general_pct_col(row):
 
 # Create percent and number columns
 def general_create_cols(df):
-    df['pct'] = df.apply(general_pct_col, axis = 1)
-    df['num'] = df.apply(lambda row: row.value if row.var_type in ['number', 'dollar'] else (row.pct * row.denom), axis = 1)
+    df['pct'] = df.progress_apply(general_pct_col, axis = 1)
+    df['num'] = df.progress_apply(lambda row: row.value if row.var_type in ['number', 'dollar'] else (row.pct * row.denom), axis = 1)
 
 
 # Apply functions to create percent and number columns
+print('Create pct and num columns')
 general_fill_denom(income)
 general_create_cols(income)
 
@@ -134,8 +140,31 @@ final_dfs.update({'income': income})
 
 
 #-----------------------------------------------------------------#
+## Population and Housing Units
+#-----------------------------------------------------------------#
+print('Clean population and housing tables')
+pop_housing = df[(df.table=='pop') | (df.table=='housing') ]
+
+pop_housing['var_type'] = 'number'
+
+# Create a denominator column. Use this to convert percent values into numbers.
+pop_housing['denom'] = pop_housing.progress_apply(lambda row: row.value if 
+                        row.new_var in ['pop', 'housing'] else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(pop_housing)
+general_create_cols(pop_housing)
+
+
+# Add df to dictionary
+final_dfs.update({'pop_housing': pop_housing})
+
+
+#-----------------------------------------------------------------#
 ## Educational Attainment
 #-----------------------------------------------------------------#
+print('Clean education table')
 edu = df[df.table=='edu']
 
 # Create column called var_type
@@ -147,14 +176,15 @@ def edu_type(row):
     elif (row.second_var.find('pct') == -1) & (row.second_var.find('medearning') == -1):
         return 'number'
 
-edu['var_type'] = edu.apply(edu_type, axis = 1)
+edu['var_type'] = edu.progress_apply(edu_type, axis = 1)
 
 
 # Create a denominator column. Use this to convert percent values into numbers.
-edu['denom'] = edu.apply(lambda row: row.value if row.new_var=='pop_total_pop25' else np.nan, axis = 1)
+edu['denom'] = edu.progress_apply(lambda row: row.value if row.new_var=='pop_total_pop25' else np.nan, axis = 1)
 
 
 # Replace values that were percents with numbers
+print('Create pct and num columns')
 general_fill_denom(edu)
 general_create_cols(edu)
 
@@ -164,26 +194,9 @@ final_dfs.update({'edu': edu})
 
 
 #-----------------------------------------------------------------#
-## Population and Housing Units
-#-----------------------------------------------------------------#
-pop_housing = df[(df.table=='pop') | (df.table=='housing') ]
-
-pop_housing['var_type'] = 'number'
-
-# Create a denominator column. Use this to convert percent values into numbers.
-pop_housing['denom'] = pop_housing.apply(lambda row: row.value if row.new_var in ['pop', 'housing'] else np.nan, axis = 1)
-
-general_fill_denom(pop_housing)
-general_create_cols(pop_housing)
-
-
-# Add df to dictionary
-final_dfs.update({'pop_housing': pop_housing})
-
-
-#-----------------------------------------------------------------#
 ## Poverty for Families
 #-----------------------------------------------------------------#
+print('Clean poverty of families table')
 povfam = df[df.table=='povfam']
 
 # Create column called var_type
@@ -193,13 +206,14 @@ def povfam_type(row):
     else:
         return 'number'
     
-povfam['var_type'] = povfam.apply(povfam_type, axis = 1)
+povfam['var_type'] = povfam.progress_apply(povfam_type, axis = 1)
 
 
 # Create a denominator column. Use this to convert percent values into numbers.
-povfam['denom'] = povfam.apply(lambda row: row.value if row.new_var=='fam' else np.nan, axis = 1)
+povfam['denom'] = povfam.progress_apply(lambda row: row.value if row.new_var=='fam' else np.nan, axis = 1)
 
 
+print('Create pct and num columns')
 general_fill_denom(povfam)
 general_create_cols(povfam)
 
@@ -209,8 +223,75 @@ final_dfs.update({'povfam': povfam})
 
 
 #-----------------------------------------------------------------#
+## Poverty for Families by Household Type
+#-----------------------------------------------------------------#
+print('Clean poverty of families by household type table')
+povfam_hh = df[df.table=='povfam_hh']
+
+# Create column called var_type
+povfam_hh['var_type'] = 'number'
+
+# Create a denominator column. Use this to convert percent values into numbers.
+povfam_hh['denom'] = povfam_hh.progress_apply(lambda row: 
+                    row.value if row.new_var == 'povfam_hh' else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(povfam_hh)
+general_create_cols(povfam_hh)
+
+# Add df to dictionary
+final_dfs.update({'povfam_hh': povfam_hh})
+
+
+#-----------------------------------------------------------------#
+## Poverty by Race/Sex/Educational Attainment
+#-----------------------------------------------------------------#
+print('Clean poverty by race/sex/educational attainment table')
+pov= df[df.table=='pov']
+
+# Do a merge with total pop values, calculate percent, and convert the percents back to numbers and save into dictionary
+# Modify how the employment table was processed and adapt to poverty table
+pov_total = pov[pov.main_var=='total']
+
+pov_dfs = {}
+
+for subset in ['pov']:
+    new_pct_col = "pct"
+    new_num_col = "num"
+    subset_df = pov[pov.main_var == subset]
+    # Merge with pop values
+    merged = pd.merge(pov_total, subset_df, on = ['GEOID', 'year', 'table', 'second_var'])
+    merged = merged.drop(columns = ['variable_x', 'main_var_x', 'new_var_x'])
+    merged.rename(columns = {'value_x': 'num_pop', 'value_y': new_pct_col}, inplace = True)
+    # Create new percent and number columns
+    merged[new_pct_col] = merged[new_pct_col] / merged.num_pop
+    merged[new_num_col] = merged.num_pop * merged[new_pct_col]
+    # Clean up df and save
+    merged = merged[['GEOID', 'year', 'table', 'second_var', 'variable_y', 'main_var_y', 'new_var_y', new_pct_col, new_num_col]]
+    merged.rename(columns = {'variable_y': 'variable', 'main_var_y': 'main_var', 'new_var_y': 'new_var'}, inplace = True)
+    pov_dfs[subset] = merged
+
+# Generate percent and number columns
+pov_total['num'] = pov_total.value
+pov_total['pct'] = 1
+
+
+# Append the pov_dfs together into a long df
+appended = pov_total
+
+for key, value in pov_dfs.items():
+    appended = appended.append(value, sort = False)
+
+
+# Add df to dictionary
+final_dfs.update({'pov': pov})
+
+
+#-----------------------------------------------------------------#
 ## Food Stamps
 #-----------------------------------------------------------------#
+print('Clean food stamps table')
 food = df[df.table=='food']
 
 def food_type(row):
@@ -223,19 +304,83 @@ def food_type(row):
     elif (row.second_var == 'pov') & (row.year >= 2015):
         return 'number'
     
-food['var_type'] = food.apply(food_type, axis = 1)
+food['var_type'] = food.progress_apply(food_type, axis = 1)
 
 
 # Make sure denominator includes main_var. Double checked with American Fact Finder that values and percents match reported.
-food['denom'] = food.apply(lambda row: row.value if row.second_var=='total' else np.nan, axis = 1)
+food['denom'] = food.progress_apply(lambda row: row.value if row.second_var=='total' else np.nan, axis = 1)
 food['denom'] = food['denom'].fillna(food.groupby(['GEOID', 'year', 'main_var'])['denom'].transform('max'))
 
 
+print('Create pct and num columns')
 general_create_cols(food)
 
 
 # Add df to dictionary
 final_dfs.update({'food': food})
+
+
+#-----------------------------------------------------------------#
+## Health Coverage
+#-----------------------------------------------------------------#
+print('Clean health coverage table')
+health = df[df.table=='health']
+
+# Create column called var_type
+health['var_type'] = 'number'
+
+# Create a denominator column. Use this to convert percent values into numbers.
+health['denom'] = health.progress_apply(lambda row: 
+                    row.value if row.new_var == 'healthcoverage_total' else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(health)
+general_create_cols(health)
+
+# Add df to dictionary
+final_dfs.update({'health': health})
+
+
+#-----------------------------------------------------------------#
+## Public Assistance
+#-----------------------------------------------------------------#
+print('Clean public assistance table')
+pubassist = df[df.table=='pubassist']
+
+# Create column called var_type
+pubassist['var_type'] = 'number'
+
+# Create a denominator column. Use this to convert percent values into numbers.
+pubassist['denom'] = pubassist.progress_apply(lambda row: 
+                    row.value if row.main_var == 'hh' else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(pubassist)
+general_create_cols(pubassist)
+
+
+# Add df to dictionary
+final_dfs.update({'pubassist': pubassist})
+
+
+#-----------------------------------------------------------------#
+## Aggregate Public Assistance
+#-----------------------------------------------------------------#
+print('Clean public assistance table')
+aggpubassist = df[df.table=='aggpubassist']
+
+# Create column called var_type
+aggpubassist['var_type'] = 'dollar'
+
+# Clean up values that are invalid (coded as -666666666)
+aggpubassist['num'] = aggpubassist.progress_apply(lambda row: row.value if row.value > -10000000 
+                                                  else np.nan, axis = 1)
+
+
+# Add df to dictionary
+final_dfs.update({'aggpubassist': aggpubassist})
 
 
 #-----------------------------------------------------------------#
@@ -262,5 +407,6 @@ final = final.reindex(columns = cols)
 
 
 # Export as parquet
+print('Export results')
 final.to_parquet('./data/raw_census_cleaned.parquet')
 final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_cleaned.parquet')

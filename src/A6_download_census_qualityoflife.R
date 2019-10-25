@@ -126,7 +126,7 @@ print('Saved data/Census/aggregate_public_assistance_tract.csv')
 
 
 #------------------------------------------------------------------#
-## Health Insurance Coverage -- 
+## Health Insurance Coverage -- got all years
 #------------------------------------------------------------------#
 print('Download health insurance (DP03) 2010-17')
 health_list = list()
@@ -143,7 +143,7 @@ for (y in tract_years) {
                          str_detect(variable, "097$") |
                          str_detect(variable, "098$") |
                          str_detect(variable, "099$")) &
-                        str_detect(GEOID, "^06037")
+                        str_detect(GEOID, "^060371414")
   )
   
   la$year <- y

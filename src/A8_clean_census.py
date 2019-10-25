@@ -5,10 +5,13 @@ import numpy as np
 import pandas as pd
 import intake
 import os
+from tqdm import tqdm 
+tqdm.pandas() 
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
 df = pd.read_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census.parquet')
+print('Read in S3')
 
 """
 ACS variable names come with table, main variable, and secondary variable. 
@@ -22,19 +25,27 @@ secondary variables: white, black, asian, etc
 # Tag the ACS table
 #-----------------------------------------------------------------#
 acs_tables = {'B01003': 'pop', 'B25001': 'housing', 
-             'S1903': 'income', 'S2301': 'emp', 'S1501': 'edu',
-             'S1702': 'povfam', 'S2201': 'food', 
-             'B19058': 'pubassist', 'B19067': 'aggpubassist',
-             'B19001': 'incomerange'}
+             'S2301': 'emp', 
+             'S1903': 'income', 'B19001': 'incomerange', 'S1901': 'incomerange_hh',
+             'S1701': 'pov', 'S1702': 'povfam', 'B17014':'povfam_hh',
+             'S1501': 'edu', 
+             'S2201': 'food', 'B19058': 'pubassist', 'B19067': 'aggpubassist', 
+             'DP03': 'health'}
 
 
 # Identify where to extract the ACS table name
+print('Cut') # About 8 min
 df['cut'] = df.variable.str.find('_')
-df['table_name'] = df.apply(lambda row: row.variable[: row.cut], axis = 1)
+df['table_name'] = df.progress_apply(lambda row: row.variable[: row.cut], axis = 1)
 
 # Map the table_name to the new label using a dictionary
+print('Tag ACS table') # About 7 min
 df['table'] = df.table_name.map(acs_tables)
 
+
+# Find the other B19001A, B19001B, etc tables and tag them
+df['table'] = df.progress_apply(lambda row: 'incomerange' if row.variable.find('B19001') != -1 
+                       else row.table , axis = 1)
 
 #-----------------------------------------------------------------#
 # Tag the main variable
@@ -88,6 +99,15 @@ def incomerange_vars(row):
     elif row.variable.find('B19001I') != -1:
         return 'hisp'
 
+def incomerange_hh_vars(row):
+    if row.variable.find('_C01') != -1:
+        return 'hh'
+    elif row.variable.find('_C02') != -1:
+        return 'families'
+    elif row.variable.find('_C03') != -1:
+        return 'married'
+    elif row.variable.find('_C04') != -1:
+        return 'nonfamily'
 
 # There are 2 variables that appear as C02 from 2015-2017, but appeared as C01 from 2010-2014. Clean later, use the same main_var for now.
 def edu_vars(row):
@@ -96,11 +116,21 @@ def edu_vars(row):
     elif row.variable.find('_C02') != -1:
         return 'pop'
 
+def pov_vars(row):
+    if row.variable.find('_C01') != -1:
+        return 'total'
+    elif row.variable.find('_C02') != -1:
+        return 'pov'
+
 def povfam_vars(row):
     if row.variable.find('_C01') != -1:
         return 'fam'
     elif row.variable.find('_C02') != -1:
         return 'fam_pov'
+
+# Doesn't have a main/secondary variable breakdown, but, still use the last 2 characters to tag secondary variable
+def povfam_hh_vars(row):
+    return 'povfam'
 
 # Columns shift from C02 to C03 2015-onward, but it's the same variable
 def food_vars(row):
@@ -121,6 +151,10 @@ def aggpubassist_vars(row):
     if row.variable.find('_001') != -1:
         return 'aggincome'
 
+# Doesn't have a main/secondary variable breakdown, but, still use the last 2 characters to tag secondary variable
+def health_vars(row):
+    return 'healthcoverage'
+
 
 def pick_table(row):
     if row.table=='pop':
@@ -133,18 +167,28 @@ def pick_table(row):
         return income_vars(row)
     elif row.table=='incomerange':
         return incomerange_vars(row)
+    elif row.table=='incomerange_hh':
+        return incomerange_hh_vars(row)
     elif row.table=='edu':
         return edu_vars(row)
+    elif row.table=='pov':
+        return pov_vars(row)
     elif row.table=='povfam':
         return povfam_vars(row)
+    elif row.table=='povfam_hh':
+        return povfam_hh_vars(row)
     elif row.table=='food':
         return food_vars(row)
     elif row.table=='pubassist':
         return pubassist_vars(row)
     elif row.table=='aggpubassist':
         return aggpubassist_vars(row)
+    elif row.table=='health':
+        return health_vars(row)
 
-df['main_var'] = df.apply(pick_table, axis = 1)
+
+print('Tag main variable') # About 28 min
+df['main_var'] = df.progress_apply(pick_table, axis = 1)
 
 
 #-----------------------------------------------------------------#
@@ -173,6 +217,10 @@ incomerange = {'01': 'total', '02': 'lt10', '03': 'r10to14', '04': 'r15to19', '0
            '11': 'r50to59', '12': 'r60to74', '13': 'r75to99', '14': 'r100to124', '15': 'r125to149',
            '16': 'r150to199', '17': 'gt200'}
 
+incomerange_hh = {'01': 'total', '02': 'lt10', '03': 'r10to14', '04': 'r15to24', '05': 'r25to34',
+           '06': 'r35to49', '07': 'r50to74', '08': 'r75to99', '09': 'r100to149', '10': 'r150to199',
+           '11': 'gt200', '12': 'medinc', '13': 'meaninc'}
+
 
 edu2010 = {'06': 'total_pop25', '07': 'hs9', '08': 'hs12', '09': 'hs', '10': 'college',
            '11': 'aa', '12': 'ba', '13': 'ma', '14': 'pct_hsplus', '15': 'pct_baplus', 
@@ -184,38 +232,66 @@ edu2015 = {'06': 'total_pop25', '07': 'hs9', '08': 'hs12', '09': 'hs', '10': 'co
            '55': 'pov_lhs', '56': 'pov_hs', '57': 'college_pov', '58': 'ba_pov', '59': 'pop25_medearning',
            '60': 'lhs_medearning', '61': 'hs_medearning', '62': 'college_medearning', '63': 'ba_medearning', '64': 'ma_medearning'}
 
+pov2012 = {'01': 'total', '06': 'male', '07': 'female', '09': 'white', '10': 'black',
+           '11': 'amerind', '12': 'asian', '13': 'pacis', '14': 'other', '15': 'race2', 
+           '16': 'hisp', '17': 'nonhisp', '18': 'pop25', '19': 'lhs', '20': 'hs', 
+           '21': 'college', '22': 'ba'}
+
+pov2015 = {'01': 'total', '11': 'male', '12': 'female', '13': 'white', '14': 'black',
+           '15': 'amerind', '16': 'asian', '17': 'pacis', '18': 'other', '19': 'race2', 
+           '20': 'hisp', '21': 'nonhisp', '22': 'pop25', '23': 'lhs', '24': 'hs', 
+           '25': 'college', '26': 'ba'}
+
+povfam_hh = {'01': 'hh', '02': 'hh_pov', '03': 'married', '09': 'malehh', '14': 'femalehh'}
+
 
 food2010 = {'01': 'total', '04': 'pov', '16': 'medhhincome'}
 
 food2015 = {'01': 'total', '21': 'pov', '34': 'medhhincome'}
 
 
+health = {'95': 'total', '96': 'have_hlt', '97': 'private', '98': 'public', '99': 'no_hlt'} 
+
+
 def pick_secondary_var(row):
-    if row.table=='income':
-        return income[row.last2]
-    elif row.table=='incomerange':
-        return incomerange[row.last2]
-    elif (row.table=='emp') & (row.year <= 2014):
+    if (row.table=='emp') & (row.year <= 2014):
         return emp2010[row.last2]
     elif (row.table=='emp') & (row.year >= 2015):
         return emp2015[row.last2]
+    elif row.table=='income':
+        return income[row.last2]
+    elif row.table=='incomerange':
+        return incomerange[row.last2]
+    elif row.table=='incomerange_hh':
+        return incomerange_hh[row.last2]        
     elif (row.table=='edu') & (row.year <= 2014):
         return edu2010[row.last2]
     elif (row.table=='edu') & (row.year >= 2015):
         return edu2015[row.last2]
+    elif (row.table=='pov') & (row.year <= 2014):
+        return pov2012[row.last2]
+    elif (row.table=='pov') & (row.year > 2015):
+        return pov2015[row.last2]
+    elif row.table=='povfam_hh':
+        return povfam_hh[row.last2]
     elif (row.table=='food') & (row.year <= 2014):
         return food2010[row.last2]
     elif (row.table=='food') & (row.year >= 2015):
         return food2015[row.last2]
-    
-df['second_var'] = df.apply(pick_secondary_var, axis = 1)
+    elif row.table=='health':
+        return health[row.last2]
+
+
+print('Tag secondary variable')  # About 25 min  
+df['second_var'] = df.progress_apply(pick_secondary_var, axis = 1)
 
 
 #-----------------------------------------------------------------#
 # Tag estimate or margin of error
 #-----------------------------------------------------------------#
 # Generate column that identifies whether it's estimate or margin of error (might drop margin of error later)
-df['est_moe'] = df.apply(lambda row: 'est' if row.variable[-1:]=='E' else 'moe', axis = 1)
+print('Tag estimate/moe') # About 5 min
+df['est_moe'] = df.progress_apply(lambda row: 'est' if row.variable[-1:]=='E' else 'moe', axis = 1)
 
 
 # Drop rows not needed
@@ -234,10 +310,11 @@ for col in ['main_var', 'second_var']:
 
 
 # Construct our new variable name
-df['new_var'] = df.apply(lambda row: (row.main_var) if row.second_var=="" 
+df['new_var'] = df.progress_apply(lambda row: (row.main_var) if row.second_var=="" 
                          else (row.main_var + '_' + row.second_var), axis = 1)
 
 
 # Export as parquet
+print('Export results')
 df.to_parquet('./data/raw_census_long.parquet')
 df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
