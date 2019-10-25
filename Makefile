@@ -14,6 +14,7 @@ mirror:
 
 test:
 	make -C notebooks
+	make -C src
 
 download_census:
 	#r src/A1_download_census_population.R
