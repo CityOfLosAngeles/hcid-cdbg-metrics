@@ -140,6 +140,58 @@ final_dfs.update({'income': income})
 
 
 #-----------------------------------------------------------------#
+## Income Range
+#-----------------------------------------------------------------#
+print('Clean income range table')
+incomerange = df[(df.table=='incomerange')]
+
+incomerange['var_type'] = 'number'
+
+# Create a denominator column. Use this to convert percent values into numbers.
+incomerange['denom'] = incomerange.progress_apply(lambda row: row.value if 
+                        row.second_var=='total' else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(incomerange)
+general_create_cols(incomerange)
+
+
+# Add df to dictionary
+final_dfs.update({'incomerange': incomerange})
+
+
+#-----------------------------------------------------------------#
+## Income Range by Household Type
+#-----------------------------------------------------------------#
+print('Clean income range by household type table')
+incomerange_hh = df[(df.table=='incomerange_hh')]
+
+# Create column called var_type
+def incomerange_hh_type(row):
+    if (row.second_var=='medinc') or (row.second_var=='meaninc'):
+        return 'dollar'
+    else:
+        return 'number'
+
+incomerange_hh['var_type'] = incomerange_hh.progress_apply(incomerange_hh_type, axis = 1)
+
+
+# Create a denominator column. Use this to convert percent values into numbers.
+incomerange_hh['denom'] = incomerange_hh.progress_apply(lambda row: row.value if 
+                        row.second_var=='total' else np.nan, axis = 1)
+
+
+print('Create pct and num columns')
+general_fill_denom(incomerange_hh)
+general_create_cols(incomerange_hh)
+
+
+# Add df to dictionary
+final_dfs.update({'incomerange_hh': incomerange_hh})
+
+
+#-----------------------------------------------------------------#
 ## Population and Housing Units
 #-----------------------------------------------------------------#
 print('Clean population and housing tables')
@@ -389,7 +441,7 @@ final_dfs.update({'aggpubassist': aggpubassist})
 final = pd.DataFrame()
 
 for key, value in final_dfs.items():
-    final = final.append(value)
+    final = final.sort_values(['table', 'GEOID', 'year', 'main_var']).append(value)
 
 
 # Drop columns
