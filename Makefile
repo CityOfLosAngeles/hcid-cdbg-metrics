@@ -14,15 +14,7 @@ mirror:
 
 test:
 	make -C notebooks
-	make -C src
-
-download_census:
-	#r src/A1_download_census_population.R
-	#r src/A2_download_census_employment.R
-	#r src/A3_download_census_income.R
-	#r src/A4_download_census_poverty.R
-	#r src/A5_download_census_education.R
-	#r src/A6_download_census_qualityoflife.R
+	#make -C src
 
 clean_census:	
 	python src/A7_compile_census.py

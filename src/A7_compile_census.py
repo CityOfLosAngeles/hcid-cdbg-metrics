@@ -4,12 +4,9 @@ import numpy as np
 import pandas as pd
 import intake
 import os
-import boto3
 
 
 # Read in downloaded csvs and write to S3
-s3 = boto3.client('s3')
-
 census_files = ['population_tract', 'housing_units_tract', 'employment_tract', 
                 'income_tract', 'income_range_tract', 'income_range_hh_tract', 
                 'poverty_tract', 'poverty_families_tract', 'poverty_families_hh_tract',
