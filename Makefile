@@ -1,4 +1,4 @@
-.PHONY: pip conda install
+.PHONY: pip conda install mirror test clean_census
 
 conda: conda-requirements.txt
 	conda install -c conda-forge --yes --file conda-requirements.txt
@@ -14,9 +14,9 @@ mirror:
 
 test:
 	make -C notebooks
-	#make -C src
+	make -C src
 
 clean_census:	
-	python src/A7_compile_census.py
-	python src/A8_clean_census.py
-	python src/A9_clean_values.py
+	python src/B1_compile_census.py
+	python src/B2_clean_census.py
+	python src/B3_clean_values.py
