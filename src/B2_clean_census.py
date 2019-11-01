@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import intake
 import os
+import re
 from tqdm import tqdm 
 tqdm.pandas() 
 
@@ -33,56 +34,58 @@ acs_tables = {'B01003': 'pop', 'B25001': 'housing',
              'DP03': 'health'}
 
 
+df = df.head(1000000)
 # Identify where to extract the ACS table name
-print('Cut') # About 8 min
-df['cut'] = df.variable.str.find('_')
-df['table_name'] = df.progress_apply(lambda row: row.variable[: row.cut], axis = 1)
-
-# Map the table_name to the new label using a dictionary
-print('Tag ACS table') # About 7 min
-df['table'] = df.table_name.map(acs_tables)
-
+pattern = re.compile('([A-Za-z0-9]+)_')
+df['table'] = df.progress_apply(
+    lambda row: acs_tables.get(pattern.match(row.variable).group(1)),
+    axis=1
+)
 
 # Find the other B19001A, B19001B, etc tables and tag them
-df['table'] = df.progress_apply(lambda row: 'incomerange' if row.variable.find('B19001') != -1 
-                       else row.table , axis = 1)
+df['table'] = df.progress_apply(
+    lambda row: 'incomerange' if 'B19001' in row.variable else row.table,
+    axis = 1
+)
+
+print(df.head(1000))
 
 #-----------------------------------------------------------------#
 # Tag the main variable
 #-----------------------------------------------------------------#
 def pop_vars(row): 
-    if row.variable.find('_001') != -1:
+    if '_001' in row.variable:
         return 'pop'
 
 def housing_vars(row): 
-    if row.variable.find('_001') != -1:
+    if '_001' in row.variable:
         return 'housing'
 
 def emp_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable != -1:
         return 'pop'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable != -1:
         return 'lf'
-    elif row.variable.find('_C03') != -1:
+    elif '_C03' in row.variable != -1:
         return 'epr'
     elif row.variable.find('_C04') != -1:
         return 'unemp'
 
 # Columns shift from C02 to C03 2017-onward, but it's the same variable
 def income_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable != -1:
         return 'hh'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable != -1:
         return 'medincome'
-    elif row.variable.find('_C03') != -1:
+    elif '_C03' in row.variable != -1:
         return 'medincome'
 
 def incomerange_vars(row):
-    if row.variable.find('B19001_') != -1:
+    if 'B19001_' in row.variable:
         return 'total'
-    elif row.variable.find('B19001A') != -1:
+    elif 'B19001A' in row.variable:
         return 'white'
-    elif row.variable.find('B19001B') != -1:
+    elif 'B19001B' in row.variable:
         return 'black'
     elif row.variable.find('B19001C') != -1:
         return 'amerind'
@@ -156,39 +159,24 @@ def health_vars(row):
     return 'healthcoverage'
 
 
-def pick_table(row):
-    if row.table=='pop':
-        return pop_vars(row)
-    elif row.table=='housing':
-        return housing_vars(row)
-    elif row.table=='emp':
-        return emp_vars(row)
-    elif row.table=='income':
-        return income_vars(row)
-    elif row.table=='incomerange':
-        return incomerange_vars(row)
-    elif row.table=='incomerange_hh':
-        return incomerange_hh_vars(row)
-    elif row.table=='edu':
-        return edu_vars(row)
-    elif row.table=='pov':
-        return pov_vars(row)
-    elif row.table=='povfam':
-        return povfam_vars(row)
-    elif row.table=='povfam_hh':
-        return povfam_hh_vars(row)
-    elif row.table=='food':
-        return food_vars(row)
-    elif row.table=='pubassist':
-        return pubassist_vars(row)
-    elif row.table=='aggpubassist':
-        return aggpubassist_vars(row)
-    elif row.table=='health':
-        return health_vars(row)
-
+tables = {
+    'pop': pop_vars,
+    'housing': housing_vars,
+    'emp': emp_vars,
+    'income': income_vars,
+    'incomerange': incomerange_vars,
+    'edu': edu_vars,
+    'pov': pov_vars,
+    'povfam': povfam_vars,
+    'povfam_hh': povfam_hh_vars,
+    'food': food_vars,
+    'pubassist': pubassist_vars,
+    'aggpubassist': aggpubassist_vars,
+    'health': health_vars,
+}
 
 print('Tag main variable') # About 28 min
-df['main_var'] = df.progress_apply(pick_table, axis = 1)
+df['main_var'] = df.progress_apply(lambda row: tables[row['table']](row), axis = 1)
 
 
 #-----------------------------------------------------------------#
