@@ -71,19 +71,21 @@ for key, value in boundaries.items():
 
 
 # Save gdfs locally and to S3
-city_boundary.to_file(driver = 'GeoJSON', filename = f'./gis/raw/city_boundary.geojson')
-s3.upload_file(f'./gis/raw/city_boundary.geojson', 'hcid-cdbg-project-ita-data', 'gis/raw/city_boundary.geojson')
+if os.environ.get('DEV') is not None:
+    city_boundary.to_file(driver = 'GeoJSON', filename = f'./gis/raw/city_boundary.geojson')
+    s3.upload_file(f'./gis/raw/city_boundary.geojson', 'hcid-cdbg-project-ita-data', 'gis/raw/city_boundary.geojson')
 
 
-for key, value in gdfs.items():
-    if (key.find('tracts')  != -1) | (key.find('zipcodes') != -1) | (key.find('congressional') != -1):
-        # Save a gdf with full area (GeoJSON can't handle multiple geometry columns)
-        value.drop(columns = ['clipped_geom', 'clipped_area']).to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}_full.geojson')
-        s3.upload_file(f'./gis/raw/{key}_full.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}_full.geojson')
-        # Save a gdf with clipped area
-        value.drop(columns = ['geometry', 'full_area']).set_geometry('clipped_geom').to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}_clipped.geojson')
-        s3.upload_file(f'./gis/raw/{key}_clipped.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}_clipped.geojson')
-    else:
-        # Save the full area (everything falls within city boundary)
-        value.drop(columns = ['clipped_geom', 'clipped_area']).to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}.geojson')
-        s3.upload_file(f'./gis/raw/{key}.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}.geojson')   
+if os.environ.get('DEV') is not None:
+    for key, value in gdfs.items():
+        if (key.find('tracts')  != -1) | (key.find('zipcodes') != -1) | (key.find('congressional') != -1):
+            # Save a gdf with full area (GeoJSON can't handle multiple geometry columns)
+            value.drop(columns = ['clipped_geom', 'clipped_area']).to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}_full.geojson')
+            s3.upload_file(f'./gis/raw/{key}_full.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}_full.geojson')
+            # Save a gdf with clipped area
+            value.drop(columns = ['geometry', 'full_area']).set_geometry('clipped_geom').to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}_clipped.geojson')
+            s3.upload_file(f'./gis/raw/{key}_clipped.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}_clipped.geojson')
+        else:
+            # Save the full area (everything falls within city boundary)
+            value.drop(columns = ['clipped_geom', 'clipped_area']).to_file(driver = 'GeoJSON', filename = f'./gis/raw/{key}.geojson')
+            s3.upload_file(f'./gis/raw/{key}.geojson', 'hcid-cdbg-project-ita-data', f'gis/raw/{key}.geojson')   

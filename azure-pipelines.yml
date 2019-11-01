@@ -18,8 +18,10 @@ steps:
     displayName: Install pypi requirements
   - bash: |
       source activate testenv
+      echo "DEV is set to $DEV"
       make test
     displayName: Test scripts and notebooks
     env:
       AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
       AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+      DEV: True

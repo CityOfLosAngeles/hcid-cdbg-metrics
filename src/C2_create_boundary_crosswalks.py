@@ -85,6 +85,7 @@ for key, df in processed.items():
 
 
 # Export the crosswalk as a parquet
-for key, value in wide_dfs.items():
-    value.sort_values('GEOID', ascending = True).to_parquet(f'./gis/crosswalk_tracts_{key}.parquet')
-    value.sort_values('GEOID', ascending = True).to_parquet(f's3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_{key}.parquet')
+if os.environ.get('DEV') is not None:
+    for key, value in wide_dfs.items():
+        value.sort_values('GEOID', ascending = True).to_parquet(f'./gis/crosswalk_tracts_{key}.parquet')
+        value.sort_values('GEOID', ascending = True).to_parquet(f's3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_{key}.parquet')

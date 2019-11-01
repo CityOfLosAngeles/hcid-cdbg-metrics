@@ -460,5 +460,6 @@ final = final.reindex(columns = cols)
 
 # Export as parquet
 print('Export results')
-final.to_parquet('./data/raw_census_cleaned.parquet')
-final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_cleaned.parquet')
+if os.environ.get('DEV') is not None:
+    final.to_parquet('./data/raw_census_cleaned.parquet')
+    final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_cleaned.parquet')

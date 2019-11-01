@@ -316,5 +316,6 @@ df['new_var'] = df.progress_apply(lambda row: (row.main_var) if row.second_var==
 
 # Export as parquet
 print('Export results')
-df.to_parquet('./data/raw_census_long.parquet')
-df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
+if os.environ.get('DEV') is not None:
+    df.to_parquet('./data/raw_census_long.parquet')
+    df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
