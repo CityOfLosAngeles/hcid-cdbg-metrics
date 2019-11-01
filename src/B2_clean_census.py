@@ -23,7 +23,7 @@ secondary variables: white, black, asian, etc
 """
 
 #-----------------------------------------------------------------#
-# Tag the ACS table
+# Tag the ACS table (about 13 min)
 #-----------------------------------------------------------------#
 acs_tables = {'B01003': 'pop', 'B25001': 'housing', 
              'S2301': 'emp', 
@@ -34,12 +34,12 @@ acs_tables = {'B01003': 'pop', 'B25001': 'housing',
              'DP03': 'health'}
 
 
-df = df.head(1000000)
-# Identify where to extract the ACS table name
+# Identify where to extract the ACS table name (tag the portion up to the 1st underscore)
 pattern = re.compile('([A-Za-z0-9]+)_')
+
 df['table'] = df.progress_apply(
     lambda row: acs_tables.get(pattern.match(row.variable).group(1)),
-    axis=1
+    axis = 1
 )
 
 # Find the other B19001A, B19001B, etc tables and tag them
@@ -49,7 +49,7 @@ df['table'] = df.progress_apply(
 )
 
 #-----------------------------------------------------------------#
-# Tag the main variable
+# Tag the main variable (about 30 min)
 #-----------------------------------------------------------------#
 def pop_vars(row): 
     if '_001' in row.variable:
@@ -60,22 +60,22 @@ def housing_vars(row):
         return 'housing'
 
 def emp_vars(row):
-    if '_C01' in row.variable != -1:
+    if '_C01' in row.variable:
         return 'pop'
-    elif '_C02' in row.variable != -1:
+    elif '_C02' in row.variable:
         return 'lf'
-    elif '_C03' in row.variable != -1:
+    elif '_C03' in row.variable:
         return 'epr'
-    elif row.variable.find('_C04') != -1:
+    elif '_C04' in row.variable:
         return 'unemp'
 
 # Columns shift from C02 to C03 2017-onward, but it's the same variable
 def income_vars(row):
-    if '_C01' in row.variable != -1:
+    if '_C01' in row.variable:
         return 'hh'
-    elif '_C02' in row.variable != -1:
+    elif '_C02' in row.variable:
         return 'medincome'
-    elif '_C03' in row.variable != -1:
+    elif '_C03' in row.variable:
         return 'medincome'
 
 def incomerange_vars(row):
@@ -85,48 +85,48 @@ def incomerange_vars(row):
         return 'white'
     elif 'B19001B' in row.variable:
         return 'black'
-    elif row.variable.find('B19001C') != -1:
+    elif 'B19001C' in row.variable:
         return 'amerind'
-    elif row.variable.find('B19001D') != -1:
+    elif 'B19001D' in row.variable:
         return 'asian'
-    elif row.variable.find('B19001E') != -1:
+    elif 'B19001E' in row.variable:
         return 'pacis'
-    elif row.variable.find('B19001F') != -1:
+    elif 'B19001F' in row.variable:
         return 'other'
-    elif row.variable.find('B19001G') != -1:
+    elif 'B19001G' in row.variable:
         return 'race2'
-    elif row.variable.find('B19001H') != -1:
+    elif 'B19001H' in row.variable:
         return 'nonhisp'
-    elif row.variable.find('B19001I') != -1:
+    elif 'B19001I' in row.variable:
         return 'hisp'
 
 def incomerange_hh_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable:
         return 'hh'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable:
         return 'families'
-    elif row.variable.find('_C03') != -1:
+    elif '_C03' in row.variable:
         return 'married'
-    elif row.variable.find('_C04') != -1:
+    elif '_C04' in row.variable:
         return 'nonfamily'
 
 # There are 2 variables that appear as C02 from 2015-2017, but appeared as C01 from 2010-2014. Clean later, use the same main_var for now.
 def edu_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable:
         return 'pop'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable:
         return 'pop'
 
 def pov_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable:
         return 'total'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable:
         return 'pov'
 
 def povfam_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable:
         return 'fam'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable:
         return 'fam_pov'
 
 # Doesn't have a main/secondary variable breakdown, but, still use the last 2 characters to tag secondary variable
@@ -135,21 +135,21 @@ def povfam_hh_vars(row):
 
 # Columns shift from C02 to C03 2015-onward, but it's the same variable
 def food_vars(row):
-    if row.variable.find('_C01') != -1:
+    if '_C01' in row.variable:
         return 'hh'
-    elif row.variable.find('_C02') != -1:
+    elif '_C02' in row.variable:
         return 'hh_food'
-    elif row.variable.find('_C03') != -1:
+    elif '_C03' in row.variable:
         return 'hh_food'
 
 def pubassist_vars(row):
-    if row.variable.find('_001') != -1:
+    if '_001' in row.variable:
         return 'hh'
-    elif row.variable.find('_002') != -1:
+    elif '_002' in row.variable:
         return 'hh_pubassist'
 
 def aggpubassist_vars(row):
-    if row.variable.find('_001') != -1:
+    if '_001' in row.variable:
         return 'aggincome'
 
 # Doesn't have a main/secondary variable breakdown, but, still use the last 2 characters to tag secondary variable
@@ -157,12 +157,13 @@ def health_vars(row):
     return 'healthcoverage'
 
 
-tables = {
+main_vars_dict = {
     'pop': pop_vars,
     'housing': housing_vars,
     'emp': emp_vars,
     'income': income_vars,
     'incomerange': incomerange_vars,
+    'incomerange_hh': incomerange_hh_vars,
     'edu': edu_vars,
     'pov': pov_vars,
     'povfam': povfam_vars,
@@ -170,15 +171,53 @@ tables = {
     'food': food_vars,
     'pubassist': pubassist_vars,
     'aggpubassist': aggpubassist_vars,
-    'health': health_vars,
+    'health': health_vars
 }
 
-print('Tag main variable') # About 28 min
-df['main_var'] = df.progress_apply(lambda row: tables[row['table']](row), axis = 1)
+""" 
+# Loop through all the items that are in the dictionary? 
+for subset in ['pop', 'housing', 'emp', 'income']:
+    df2 = df[df.table==subset]
+    df2['main_var'] = df2.apply(dictionary[subset])
+
+def pick_table(row):
+    return dictionary[row.table](row)
+    if row.table=='pop':
+        return pop_vars(row)
+    elif row.table=='housing':
+        return housing_vars(row)
+    elif row.table=='emp':
+        return emp_vars(row)
+    elif row.table=='income':
+        return income_vars(row)
+    elif row.table=='incomerange':
+        return incomerange_vars(row)
+    elif row.table=='incomerange_hh':
+        return incomerange_hh_vars(row)
+    elif row.table=='edu':
+        return edu_vars(row)
+    elif row.table=='pov':
+        return pov_vars(row)
+    elif row.table=='povfam':
+        return povfam_vars(row)
+    elif row.table=='povfam_hh':
+        return povfam_hh_vars(row)
+    elif row.table=='food':
+        return food_vars(row)
+    elif row.table=='pubassist':
+        return pubassist_vars(row)
+    elif row.table=='aggpubassist':
+        return aggpubassist_vars(row)
+    elif row.table=='health':
+        return health_vars(row)
+"""
+
+print('Tag main variable')  
+df['main_var'] = df.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
 
 
 #-----------------------------------------------------------------#
-# Tag the secondary variable
+# Tag the secondary variable (about 25 min)
 #-----------------------------------------------------------------#
 # Grab the last 2 characters of the variable column that tells us what number the question was (01, 02, ...)
 df['last2'] = df.variable.str[-3:-1]
@@ -268,12 +307,12 @@ def pick_secondary_var(row):
         return health[row.last2]
 
 
-print('Tag secondary variable')  # About 25 min  
+print('Tag secondary variable')  
 df['second_var'] = df.progress_apply(pick_secondary_var, axis = 1)
 
 
 #-----------------------------------------------------------------#
-# Tag estimate or margin of error
+# Tag estimate or margin of error (about min)
 #-----------------------------------------------------------------#
 # Generate column that identifies whether it's estimate or margin of error (might drop margin of error later)
 print('Tag estimate/moe') # About 5 min
@@ -284,7 +323,7 @@ df['est_moe'] = df.progress_apply(lambda row: 'est' if row.variable[-1:]=='E' el
 df = df.loc[df.est_moe != 'moe']
 
 # Drop columns not needed
-df.drop(columns = ['cut', 'table_name', 'last2', 'est_moe'], inplace = True)
+df.drop(columns = ['last2', 'est_moe'], inplace = True)
 
 
 #-----------------------------------------------------------------#
@@ -296,7 +335,7 @@ for col in ['main_var', 'second_var']:
 
 
 # Construct our new variable name
-df['new_var'] = df.progress_apply(lambda row: (row.main_var) if row.second_var=="" 
+df['new_var'] = df.progress_apply(lambda row: row.main_var if row.second_var=="" 
                          else (row.main_var + '_' + row.second_var), axis = 1)
 
 
