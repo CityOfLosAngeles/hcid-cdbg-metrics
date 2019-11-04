@@ -13,9 +13,9 @@ mirror:
 	intake-dcat mirror manifest.yml > catalogs/open-data.yml
 
 test:
-	make -C notebooks
 	make -C src
-
+	make -C notebooks
+	
 clean_census:	
 	python src/B1_compile_census.py
 	python src/B2_clean_census.py
