@@ -49,7 +49,7 @@ df['table'] = df.progress_apply(
 )
 
 #-----------------------------------------------------------------#
-# Tag the main variable (about 30 min)
+# Tag the main variable (about 15 min)
 #-----------------------------------------------------------------#
 def pop_vars(row): 
     if '_001' in row.variable:
@@ -174,43 +174,6 @@ main_vars_dict = {
     'health': health_vars
 }
 
-""" 
-# Loop through all the items that are in the dictionary? 
-for subset in ['pop', 'housing', 'emp', 'income']:
-    df2 = df[df.table==subset]
-    df2['main_var'] = df2.apply(dictionary[subset])
-
-def pick_table(row):
-    return dictionary[row.table](row)
-    if row.table=='pop':
-        return pop_vars(row)
-    elif row.table=='housing':
-        return housing_vars(row)
-    elif row.table=='emp':
-        return emp_vars(row)
-    elif row.table=='income':
-        return income_vars(row)
-    elif row.table=='incomerange':
-        return incomerange_vars(row)
-    elif row.table=='incomerange_hh':
-        return incomerange_hh_vars(row)
-    elif row.table=='edu':
-        return edu_vars(row)
-    elif row.table=='pov':
-        return pov_vars(row)
-    elif row.table=='povfam':
-        return povfam_vars(row)
-    elif row.table=='povfam_hh':
-        return povfam_hh_vars(row)
-    elif row.table=='food':
-        return food_vars(row)
-    elif row.table=='pubassist':
-        return pubassist_vars(row)
-    elif row.table=='aggpubassist':
-        return aggpubassist_vars(row)
-    elif row.table=='health':
-        return health_vars(row)
-"""
 
 print('Tag main variable')  
 df['main_var'] = df.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
@@ -295,7 +258,7 @@ def pick_secondary_var(row):
         return edu2015[row.last2]
     elif (row.table=='pov') & (row.year <= 2014):
         return pov2012[row.last2]
-    elif (row.table=='pov') & (row.year > 2015):
+    elif (row.table=='pov') & (row.year >= 2015):
         return pov2015[row.last2]
     elif row.table=='povfam_hh':
         return povfam_hh[row.last2]
@@ -312,7 +275,7 @@ df['second_var'] = df.progress_apply(pick_secondary_var, axis = 1)
 
 
 #-----------------------------------------------------------------#
-# Tag estimate or margin of error (about min)
+# Tag estimate or margin of error (about 5 min)
 #-----------------------------------------------------------------#
 # Generate column that identifies whether it's estimate or margin of error (might drop margin of error later)
 print('Tag estimate/moe') # About 5 min
