@@ -180,7 +180,7 @@ df['main_var'] = df.progress_apply(lambda row: main_vars_dict[row['table']](row)
 
 
 #-----------------------------------------------------------------#
-# Tag the secondary variable (about 25 min)
+# Tag the secondary variable (about 5 min?)
 #-----------------------------------------------------------------#
 # Grab the last 2 characters of the variable column that tells us what number the question was (01, 02, ...)
 df['last2'] = df.variable.str[-3:-1]
@@ -270,8 +270,15 @@ def pick_secondary_var(row):
         return health[row.last2]
 
 
-print('Tag secondary variable')  
-df['second_var'] = df.progress_apply(pick_secondary_var, axis = 1)
+print('Tag secondary variable') 
+
+subset_df = df[['table', 'year', 'last2']].drop_duplicates()
+
+# Do mapping on subset before merging on full df
+subset_df['second_var'] = subset_df.progress_apply(pick_secondary_var, axis = 1)
+
+# Merge the mapped values with the full df
+df = pd.merge(df, subset_df, on = ['table', 'year', 'last2'], how = 'left', validate = 'm:1')
 
 
 #-----------------------------------------------------------------#
