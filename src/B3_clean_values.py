@@ -447,7 +447,7 @@ final_dfs.update({'aggpubassist': aggpubassist})
 final = pd.DataFrame()
 
 for key, value in final_dfs.items():
-    final = value.sort_values(['table', 'GEOID', 'year', 'main_var']).append(value)
+    final = final.append(value)
     
 
 # Round the number column (can't convert to integer because some are NaN)
@@ -457,7 +457,7 @@ final['num'] = final.num.round(0)
 # Change column order
 cols = ['GEOID', 'year', 'variable', 'table', 'main_var', 'second_var', 'new_var', 'num', 'pct']
 final = final[cols].reindex(columns = cols)
-
+final = final.sort_values(['table', 'GEOID', 'year', 'main_var'])
 
 # Export as parquet
 print('Export results')
