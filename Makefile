@@ -12,8 +12,12 @@ install: conda pip
 mirror:
 	intake-dcat mirror manifest.yml > catalogs/open-data.yml
 
+
+# Do not run A* because of Census API rate-limiting
+# Do not run B1 because it reads CSVs locally, then writes to S3 (will fail CI/CD)
 test:
-	make -C src
+	python src/C1_clip_boundaries.py
+	python src/C2_create_boundary_crosswalks.py
 	make -C notebooks
 	
 clean_census:	
