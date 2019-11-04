@@ -8,6 +8,10 @@ import os
 import re
 from tqdm import tqdm 
 tqdm.pandas() 
+from datetime import datetime
+
+time0 = datetime.now()
+print(f'Start time: {time0}')
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
@@ -47,6 +51,10 @@ df['table'] = df.progress_apply(
     lambda row: 'incomerange' if 'B19001' in row.variable else row.table,
     axis = 1
 )
+
+time1 = datetime.now()
+print(f'Tagged ACS table: {time1 - time0}')
+
 
 #-----------------------------------------------------------------#
 # Tag the main variable (about 15 min)
@@ -175,8 +183,16 @@ main_vars_dict = {
 }
 
 
-print('Tag main variable')  
-df['main_var'] = df.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
+# Do mapping on subset before merging on full df
+subset_df1 = df[['table', 'year', 'variable']].drop_duplicates()
+subset_df1['main_var'] = subset_df1.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
+
+# Merge the mapped values with the full df
+df = pd.merge(df, subset_df1, on = ['table', 'year', 'variable'], how = 'left', validate = 'm:1')
+
+
+time2 = datetime.now()
+print(f'Tagged main variable time: {time2 - time1}')
 
 
 #-----------------------------------------------------------------#
@@ -270,22 +286,22 @@ def pick_secondary_var(row):
         return health[row.last2]
 
 
-print('Tag secondary variable') 
-
-subset_df = df[['table', 'year', 'last2']].drop_duplicates()
-
 # Do mapping on subset before merging on full df
-subset_df['second_var'] = subset_df.progress_apply(pick_secondary_var, axis = 1)
+subset_df2 = df[['table', 'year', 'last2']].drop_duplicates()
+subset_df2['second_var'] = subset_df2.progress_apply(pick_secondary_var, axis = 1)
 
 # Merge the mapped values with the full df
-df = pd.merge(df, subset_df, on = ['table', 'year', 'last2'], how = 'left', validate = 'm:1')
+df = pd.merge(df, subset_df2, on = ['table', 'year', 'last2'], how = 'left', validate = 'm:1')
+
+
+time3 = datetime.now()
+print(f'Tagged secondary variable time: {time3 - time2}')
 
 
 #-----------------------------------------------------------------#
 # Tag estimate or margin of error (about 5 min)
 #-----------------------------------------------------------------#
 # Generate column that identifies whether it's estimate or margin of error (might drop margin of error later)
-print('Tag estimate/moe') # About 5 min
 df['est_moe'] = df.progress_apply(lambda row: 'est' if row.variable[-1:]=='E' else 'moe', axis = 1)
 
 
@@ -294,6 +310,10 @@ df = df.loc[df.est_moe != 'moe']
 
 # Drop columns not needed
 df.drop(columns = ['last2', 'est_moe'], inplace = True)
+
+
+time4 = datetime.now()
+print(f'Tagged est/moe variable time: {time4 - time3}')
 
 
 #-----------------------------------------------------------------#
@@ -314,3 +334,6 @@ print('Export results')
 if os.environ.get('DEV') is not None:
     df.to_parquet('./data/raw_census_long.parquet')
     df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
+
+time5 = datetime.now()
+print(f'Finished time: {time5 - time4}')
