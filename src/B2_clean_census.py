@@ -335,5 +335,7 @@ if os.environ.get('DEV') is not None:
     df.to_parquet('./data/raw_census_long.parquet')
     df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
 
+
 time5 = datetime.now()
-print(f'Finished time: {time5 - time4}')
+print(f'Clean up and export time: {time5 - time4}')
+print(f'Total execution time: {time5 - time0}')
