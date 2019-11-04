@@ -16,6 +16,10 @@ import intake
 import os
 from tqdm import tqdm 
 tqdm.pandas() 
+from datetime import datetime
+
+time0 = datetime.now()
+print(f'Start time: {time0}')
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
@@ -460,6 +464,10 @@ final = final.reindex(columns = cols)
 
 # Export as parquet
 print('Export results')
-if os.environ.get('DEV') is not None:
+if os.environ.get('DEV') is None:
     final.to_parquet('./data/raw_census_cleaned.parquet')
     final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_cleaned.parquet')
+
+
+time1 = datetime.now()
+print(f'Total execution time: {time1 - time0}')
