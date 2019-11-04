@@ -448,8 +448,7 @@ final = pd.DataFrame()
 
 for key, value in final_dfs.items():
     final = value.sort_values(['table', 'GEOID', 'year', 'main_var']).append(value)
-    print(key)
-    print(value.columns)
+    
 
 # Round the number column (can't convert to integer because some are NaN)
 final['num'] = final.num.round(0)
