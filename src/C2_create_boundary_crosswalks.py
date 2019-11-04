@@ -8,6 +8,10 @@ import geopandas as gpd
 import intake
 import os
 import utils
+from datetime import datetime
+
+time0 = datetime.now()
+print(f'Start time: {time0}')
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
@@ -85,7 +89,11 @@ for key, df in processed.items():
 
 
 # Export the crosswalk as a parquet
-if os.environ.get('DEV') is not None:
+if os.environ.get('DEV') is None:
     for key, value in wide_dfs.items():
         value.sort_values('GEOID', ascending = True).to_parquet(f'./gis/crosswalk_tracts_{key}.parquet')
         value.sort_values('GEOID', ascending = True).to_parquet(f's3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_{key}.parquet')
+
+
+time1 = datetime.now()
+print(f'Total execution time: {time1 - time0}') 

@@ -16,6 +16,10 @@ import intake
 import os
 from tqdm import tqdm 
 tqdm.pandas() 
+from datetime import datetime
+
+time0 = datetime.now()
+print(f'Start time: {time0}')
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
@@ -430,6 +434,8 @@ aggpubassist['var_type'] = 'dollar'
 aggpubassist['num'] = aggpubassist.progress_apply(lambda row: row.value if row.value > -10000000 
                                                   else np.nan, axis = 1)
 
+aggpubassist['pct'] = np.nan
+
 
 # Add df to dictionary
 final_dfs.update({'aggpubassist': aggpubassist})
@@ -441,12 +447,7 @@ final_dfs.update({'aggpubassist': aggpubassist})
 final = pd.DataFrame()
 
 for key, value in final_dfs.items():
-    final = final.sort_values(['table', 'GEOID', 'year', 'main_var']).append(value)
-
-
-# Drop columns
-drop_me = ['value', 'var_type', 'denom']
-final = final.drop(columns = drop_me)
+    final = final.append(value)
     
 
 # Round the number column (can't convert to integer because some are NaN)
@@ -455,11 +456,15 @@ final['num'] = final.num.round(0)
 
 # Change column order
 cols = ['GEOID', 'year', 'variable', 'table', 'main_var', 'second_var', 'new_var', 'num', 'pct']
-final = final.reindex(columns = cols)
-
+final = final[cols].reindex(columns = cols)
+final = final.sort_values(['table', 'GEOID', 'year', 'main_var'])
 
 # Export as parquet
 print('Export results')
-if os.environ.get('DEV') is not None:
+if os.environ.get('DEV') is None:
     final.to_parquet('./data/raw_census_cleaned.parquet')
     final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_cleaned.parquet')
+
+
+time1 = datetime.now()
+print(f'Total execution time: {time1 - time0}')
