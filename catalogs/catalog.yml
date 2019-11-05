@@ -17,6 +17,11 @@ sources:
     driver: dcat
     args:
       url: http://gisdata-scag.opendata.arcgis.com/data.json
+  latimes_neighobrhoods:
+    driver: geojson
+    description: LA Times Neighborhoods (272 in LA County).
+    args:
+      urlpath: http://boundaries.latimes.com/1.0/boundary-set/la-county-neighborhoods-current/?format=geojson
   crosswalk_tracts_council_districts:
     driver: parquet
     description: Crosswalk that links census tracts to council districts.
