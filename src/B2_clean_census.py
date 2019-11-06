@@ -15,9 +15,28 @@ print(f'Start time: {time0}')
 
 catalog = intake.open_catalog('./catalogs/*.yml')
 
-df = pd.read_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census.parquet')
+df_full = pd.read_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census.parquet')
 print('Read in S3')
 
+
+#-----------------------------------------------------------------#
+# Subset df 
+#-----------------------------------------------------------------#
+"""
+Only keep year and variable columns. These are needed to tag ACS table, 
+main variable, and secondary variable.
+GEOIDs don't matter, but year does. Whether we do it on 1 GEOID or all GEOIDs within
+LA County, the process of tagging table, main var, and secondary var is the same.
+Do all the tagging and mapping to new values on a much smaller df, then merge
+back in with the full df.
+"""
+
+df = df_full[['year', 'variable']].drop_duplicates()
+
+
+#-----------------------------------------------------------------#
+# Tag the ACS table
+#-----------------------------------------------------------------#
 """
 ACS variable names come with table, main variable, and secondary variable. 
 If there are multiple columns, then the main variable changes, but the secondary variable is constant. 
@@ -26,9 +45,6 @@ main variables: population, labor force participation rate, etc
 secondary variables: white, black, asian, etc
 """
 
-#-----------------------------------------------------------------#
-# Tag the ACS table (about 13 min)
-#-----------------------------------------------------------------#
 acs_tables = {'B01003': 'pop', 'B25001': 'housing', 
              'S2301': 'emp', 
              'S1903': 'income', 'B19001': 'incomerange', 'S1901': 'incomerange_hh',
@@ -57,7 +73,7 @@ print(f'Tagged ACS table: {time1 - time0}')
 
 
 #-----------------------------------------------------------------#
-# Tag the main variable (about 15 min)
+# Tag the main variable
 #-----------------------------------------------------------------#
 def pop_vars(row): 
     if '_001' in row.variable:
@@ -183,12 +199,8 @@ main_vars_dict = {
 }
 
 
-# Do mapping on subset before merging on full df
-subset_df1 = df[['table', 'year', 'variable']].drop_duplicates()
-subset_df1['main_var'] = subset_df1.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
-
-# Merge the mapped values with the full df
-df = pd.merge(df, subset_df1, on = ['table', 'year', 'variable'], how = 'left', validate = 'm:1')
+# Tag the main variable
+df['main_var'] = df.progress_apply(lambda row: main_vars_dict[row['table']](row), axis = 1)
 
 
 time2 = datetime.now()
@@ -286,12 +298,8 @@ def pick_secondary_var(row):
         return health[row.last2]
 
 
-# Do mapping on subset before merging on full df
-subset_df2 = df[['table', 'year', 'last2']].drop_duplicates()
-subset_df2['second_var'] = subset_df2.progress_apply(pick_secondary_var, axis = 1)
-
-# Merge the mapped values with the full df
-df = pd.merge(df, subset_df2, on = ['table', 'year', 'last2'], how = 'left', validate = 'm:1')
+# Tag the secondary variable
+df['second_var'] = df.progress_apply(pick_secondary_var, axis = 1)
 
 
 time3 = datetime.now()
@@ -299,21 +307,10 @@ print(f'Tagged secondary variable time: {time3 - time2}')
 
 
 #-----------------------------------------------------------------#
-# Tag estimate or margin of error (about 5 min)
+# Tag estimate or margin of error
 #-----------------------------------------------------------------#
 # Generate column that identifies whether it's estimate or margin of error (might drop margin of error later)
 df['est_moe'] = df.progress_apply(lambda row: 'est' if row.variable[-1:]=='E' else 'moe', axis = 1)
-
-
-# Drop rows not needed
-df = df.loc[df.est_moe != 'moe']
-
-# Drop columns not needed
-df.drop(columns = ['last2', 'est_moe'], inplace = True)
-
-
-time4 = datetime.now()
-print(f'Tagged est/moe variable time: {time4 - time3}')
 
 
 #-----------------------------------------------------------------#
@@ -329,13 +326,29 @@ df['new_var'] = df.progress_apply(lambda row: row.main_var if row.second_var==""
                          else (row.main_var + '_' + row.second_var), axis = 1)
 
 
+time4 = datetime.now()
+print(f'Tagged est/moe and constructed new_var time: {time4 - time3}')
+
+
+#-----------------------------------------------------------------#
+# Merge the subset with full df 
+#-----------------------------------------------------------------#
+final = pd.merge(df_full, df, on = ['variable', 'year'], how = 'left', validate = 'm:1')
+
+
+# Drop rows not needed
+final = final.loc[final.est_moe != 'moe']
+
+# Drop columns not needed
+final.drop(columns = ['last2', 'est_moe'], inplace = True)
+
+
 # Export as parquet
 print('Export results')
 if os.environ.get('DEV') is None:
-    df.to_parquet('./data/raw_census_long.parquet')
-    df.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
+    final.to_parquet('./data/raw_census_long.parquet')
+    final.to_parquet('s3://hcid-cdbg-project-ita-data/data/raw/raw_census_long.parquet')
 
 
 time5 = datetime.now()
-print(f'Clean up and export time: {time5 - time4}')
 print(f'Total execution time: {time5 - time0}')
