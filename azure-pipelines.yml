@@ -1,26 +1,42 @@
 trigger:
   - master
-pool:
-  vmImage: 'Ubuntu-16.04'
-steps:
-  - bash: echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: Add conda to PATH
-  - bash: |
-      conda create --yes --name testenv
-      source activate testenv
-      conda install --yes -c conda-forge --file conda-requirements.txt
-    displayName: Create conda env
-  - bash: |
-      source activate testenv
-      pip install -r requirements.txt
-    displayName: Install pypi requirements
-  - bash: |
-      source activate testenv
-      echo "DEV is set to $DEV"
-      make test
-    displayName: Test scripts and notebooks
+jobs:
+  - job: 'test_scripts'
+    pool:
+      vmImage: 'Ubuntu-16.04'
     timeoutInMinutes: 0
-    env:
-      AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-      AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-      DEV: True
+    steps:
+      - bash: echo "##vso[task.prependpath]$CONDA/bin"
+        displayName: Add conda to PATH
+      - bash: bash ./ci/install.sh
+        displayName: Create conda env
+      - bash: |
+          source activate testenv
+          echo "DEV is set to $DEV"
+          python src/B2_clean_census.py
+          python src/B3_clean_values.py
+          python src/C1_clip_boundaries.py
+          python src/C2_create_boundary_crosswalks.py
+        displayName: Test scripts
+        env:
+          AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+          AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+          DEV: True
+  - job: 'test_notebooks'
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    timeoutInMinutes: 0
+    steps:
+      - bash: echo "##vso[task.prependpath]$CONDA/bin"
+        displayName: Add conda to PATH
+      - bash: bash ./ci/install.sh
+        displayName: Create conda env
+      - bash: |
+          source activate testenv
+          echo "DEV is set to $DEV"
+          make -C notebooks
+        displayName: Test notebooks
+        env:
+          AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
+          AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+          DEV: True
