@@ -10,15 +10,20 @@ Project Organization
     ├── LICENSE
     ├── Makefile                 <- Makefile with commands like `make data` or `make train`
     ├── README.md                <- The top-level README for developers using this project.
-    ├── data                     <- A directory for local data.
-    ├── models                   <- Trained and serialized models, model predictions, or model summaries
+    ├── data                     <- A directory for local, raw, source data.
+    ├── gis                      <- A directory for local geospatial data.
+    ├── models                   <- Trained and serialized models, model predictions, or model summaries.
     │
     ├── notebooks                <- Jupyter notebooks.
+    |
+    ├── outputs                  <- A directory for outputs such as tables created.
+    |
+    ├── processed                <- A directory for processed, final data that is used for analysis.
     │
     ├── references               <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── reports                  <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures              <- Generated graphics and figures to be used in reporting
+    │   └── figures              <- Generated graphics and figures to be used in reporting.
     │
     │
     ├── conda-requirements.txt   <- The requirements file for conda installs.
@@ -27,12 +32,8 @@ Project Organization
     │
     ├── setup.py                 <- makes project pip installable (pip install -e .) so src can be imported
     ├── src                      <- Source code for use in this project.
-    │   ├── __init__.py          <- Makes src a Python module
-    │   │
-    │   ├── data                 <- Scripts to download or generate data
-    │   ├── features             <- Scripts to turn raw data into features for modeling
-    │   ├── models               <- Scripts to train models and then use trained models to make
-    │   └── visualization        <- Scripts to create exploratory and results oriented visualizations
+    |
+    ├── visualization            <- A directory for visualizations created.
 
 
 --------
@@ -40,8 +41,7 @@ Project Organization
 ### Setting up a Conda Environment 
 
 1. `conda create --name my_project_name` 
-
-2. `source activate my_project_name
+2. `source activate my_project_name`
 3. `conda install --file conda-requirements.txt -c conda-forge` 
 4. `pip install requirements.txt`
 
