@@ -1,8 +1,6 @@
-notebooks := $(wildcard *.ipynb)
+.PHONY: notebooks
 
-.PHONY: test $(notebooks)
-
-test: $(notebooks)
-
-$(notebooks):
-	papermill $@ /dev/null
+notebooks:
+	papermill aggregate-income.ipynb /dev/null
+	papermill aggregate-education.ipynb /dev/null
+	papermill aggregate-employment.ipynb /dev/null
