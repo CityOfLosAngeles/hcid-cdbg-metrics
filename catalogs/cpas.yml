@@ -1,0 +1,17 @@
+sources:
+  pep_info:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/pep-info.parquet"
+  application_info:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/application_info.parquet"
+  application_list:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/application_list.parquet"
+  grant_gpr:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/grant_gpr.parquet"
