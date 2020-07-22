@@ -48,6 +48,7 @@ def all_year_list():
 def get_application_info(year):
     sql = f"""
     SELECT
+	'{year}' as pgm_year,
     proj_id,
     (
         SELECT nvl(sum(CDBG_FND_AMT),0)
@@ -141,6 +142,7 @@ def app_list(year):
     sql = f"""
 	SELECT * FROM  (
 	    SELECT 
+        	'{year}' as pgm_year,
 			apl.grnt_aplctn_id, 
             apl.prjct_ttl, 
 			apl.fnd_yr,
