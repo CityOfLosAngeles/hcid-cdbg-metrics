@@ -15,3 +15,15 @@ sources:
     driver: parquet
     args:
       urlpath: "s3://hcid-cdbg-project-ita-data/grant_gpr.parquet"
+  grant_gpr_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/grant_gpr_geocode.geojson"
+  project_location_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/project_location_geocode.geojson"
+  pep_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/pep_geocode.geojson"
