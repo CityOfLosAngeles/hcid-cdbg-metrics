@@ -12,6 +12,9 @@ install: conda pip
 mirror:
 	intake-dcat mirror manifest.yml > catalogs/open-data.yml
 
+dedupe: 
+	python src/D1_csv_dedupe.py
+
 
 # Do not run A* because of Census API rate-limiting
 # Do not run B1 because it reads CSVs locally, then writes to S3 (will fail CI/CD)

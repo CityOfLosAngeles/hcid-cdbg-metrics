@@ -1,0 +1,29 @@
+sources:
+  pep_info:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/pep_info.parquet"
+  application_info:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/application_info.parquet"
+  application_list:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/application_list.parquet"
+  grant_gpr:
+    driver: parquet
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/grant_gpr.parquet"
+  grant_gpr_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/grant_gpr_geocode.geojson"
+  project_location_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/project_location_geocode.geojson"
+  pep_geocode:
+    driver: geojson
+    args:
+      urlpath: "s3://hcid-cdbg-project-ita-data/pep_geocode.geojson"
