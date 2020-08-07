@@ -51,3 +51,8 @@ sources:
     description: Crosswalk that links census tracts to LA Times neighborhoods.
     args:
       urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_neighborhoods.parquet
+  census_block_groups:
+    driver: shapefile
+    description: asdf
+    args:
+      urlpath: zip+s3://hcid-cdbg-project-ita-data/gis/source/CENSUS_BLOCK_GROUPS_2010.zip
