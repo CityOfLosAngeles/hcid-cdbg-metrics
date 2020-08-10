@@ -11,16 +11,16 @@ Sys.getenv("CENSUS_KEY")
 setwd("GitHub/hcid-cdbg-metrics")
 
 ## Load years
-#tract_years <- list(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017)
+years <- list(2017)
 
 
 #------------------------------------------------------------------#
-## Household Income Ranges by Block Group -- just 2017
+## Household Income Ranges by Block Group -- 2017
 #------------------------------------------------------------------#
 print('Download income ranges by block group (B19001) 2017')
 income_range = list()
 
-for (y in 2017) {
+for (y in years) {
   var <- load_variables(y, "acs5", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "B19001_"))
   
@@ -62,12 +62,12 @@ print('Saved data/Census/income_range_hh_block_group.csv')
 
 
 #------------------------------------------------------------------#
-## Median Household Income by Block Group -- just 2017
+## Median Household Income by Block Group -- 2017
 #------------------------------------------------------------------#
 print('Download median hh income by block group (B19013) 2017')
 medincome = list()
 
-for (y in 2017) {
+for (y in years) {
   var <- load_variables(y, "acs5", cache = TRUE)
   columns <- var %>% filter(str_detect(name, "B19013_"))
   
