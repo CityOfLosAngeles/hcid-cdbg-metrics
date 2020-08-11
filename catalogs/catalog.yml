@@ -13,6 +13,9 @@ sources:
         city_boundary: http://geohub.lacity.org/datasets/09f503229d37414a8e67a7b6ceb9ec43_7
         county_boundary: http://geohub.lacity.org/datasets/10f1e37c065347e693cf4e8ee753c09b_15
         community_plan_area: http://geohub.lacity.org/datasets/f4e830d3882d457bb9d9241cdff0b10a_0
+        neighborhood_councils: http://geohub.lacity.org/datasets/674f80b8edee4bf48551512896a1821d_0
+        council_districts: http://geohub.lacity.org/datasets/76104f230e384f38871eb3c4782f903d_13
+        zip_codes: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26
   la_county_open_data:
     driver: dcat
     args:
@@ -21,33 +24,18 @@ sources:
     driver: dcat
     args:
       url: http://gisdata-scag.opendata.arcgis.com/data.json
-  latimes_neighobrhoods:
+  latimes_neighborhoods:
     driver: geojson
     description: LA Times Neighborhoods (272 in LA County).
     args:
       urlpath: http://boundaries.latimes.com/1.0/boundary-set/la-county-neighborhoods-current/?format=geojson
-  crosswalk_tracts_council_districts:
-    driver: parquet
-    description: Crosswalk that links census tracts to council districts.
+  census_tracts:
+    driver: geojson
+    description: Census tracts clipped to City of LA.
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_council_districts.parquet
-  crosswalk_tracts_neighborhood_councils:
-    driver: parquet
-    description: Crosswalk that links census tracts to neighborhood councils.
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/raw/tracts_clipped.geojson
+  census_block_groups:
+    driver: geojson
+    description: Census block groups clipped to City of LA.
     args:
-      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_neighborhood_councils.parquet
-  crosswalk_tracts_zipcodes:
-    driver: parquet
-    description: Crosswalk that links census tracts to zipcodes.
-    args:
-      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_zipcodes.parquet
-  crosswalk_tracts_congressional_districts:
-    driver: parquet
-    description: Crosswalk that links census tracts to congressional districts (116th).
-    args:
-      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_congressional_districts.parquet
-  crosswalk_tracts_neighborhoods:
-    driver: parquet
-    description: Crosswalk that links census tracts to LA Times neighborhoods.
-    args:
-      urlpath: s3://hcid-cdbg-project-ita-data/gis/crosswalk_tracts_neighborhoods.parquet
+      urlpath: s3://hcid-cdbg-project-ita-data/gis/raw/block_groups_clipped.geojson

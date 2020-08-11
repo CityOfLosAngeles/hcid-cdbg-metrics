@@ -13,10 +13,7 @@ jobs:
       - bash: |
           source activate testenv
           echo "DEV is set to $DEV"
-          python src/B2_clean_census.py
-          python src/B3_clean_values.py
           python src/C1_clip_boundaries.py
-          python src/C2_create_boundary_crosswalks.py
         displayName: Test scripts
         env:
           AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
