@@ -40,3 +40,8 @@ sources:
     description: Census block groups clipped to City of LA.
     args:
       urlpath: s3://hcid-cdbg-project-ita-data/gis/raw/block_groups_clipped.geojson
+  lmi_hud:
+    driver: geojson
+    description: HUD census block group data for low and moderate income.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/lmi_hud.geojson
