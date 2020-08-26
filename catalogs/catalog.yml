@@ -14,6 +14,7 @@ sources:
         county_boundary: http://geohub.lacity.org/datasets/10f1e37c065347e693cf4e8ee753c09b_15
         community_plan_area: http://geohub.lacity.org/datasets/f4e830d3882d457bb9d9241cdff0b10a_0
         neighborhood_councils: http://geohub.lacity.org/datasets/674f80b8edee4bf48551512896a1821d_0
+        area_planning_commision: http://geohub.lacity.org/datasets/da2e20211f8c4c2ca94a6c49e0b5e091_0
         council_districts: http://geohub.lacity.org/datasets/76104f230e384f38871eb3c4782f903d_13
         zip_codes: http://geohub.lacity.org/datasets/71b2fed2c1f24fc8850f5b7f8d2a320a_26
   la_county_open_data:
@@ -39,3 +40,8 @@ sources:
     description: Census block groups clipped to City of LA.
     args:
       urlpath: s3://hcid-cdbg-project-ita-data/gis/raw/block_groups_clipped.geojson
+  lmi_hud:
+    driver: geojson
+    description: HUD census block group data for low and moderate income.
+    args:
+      urlpath: s3://hcid-cdbg-project-ita-data/lmi_hud.geojson
